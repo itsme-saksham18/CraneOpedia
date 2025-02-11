@@ -1,0 +1,6 @@
+body::-webkit-scrollbar{
+    display: none;
+}
+.ayo::-webkit-scrollbar{
+    display: none;
+}

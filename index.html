@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraneOpedia - Optimizing Lifting Operations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="bg-white text-yellow-500">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">🚧 CraneOpedia</h1>
+            <ul class="hidden md:flex space-x-6 font-semibold">
+                <li><a href="#home" class="hover:text-gray-900">Home</a></li>
+                <li><a href="#compare" class="hover:text-gray-900">Compare Cranes</a></li>
+                <li><a href="#load-analysis" class="hover:text-gray-900">Load Analysis</a></li>
+                <li><a href="#recommendations" class="hover:text-gray-900">Recommendations</a></li>
+                <li><a href="#chatbot" class="hover:text-gray-900">AI Chatbot</a></li>
+                <li><a href="#reports" class="hover:text-gray-900">Reports</a></li>
+                <li><a href="#contact" class="hover:text-gray-900">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="text-center py-20 bg-yellow-500 text-white">
+        <h2 class="text-4xl font-bold">🚜 Welcome to CraneOpedia</h2>
+        <p class="text-lg mt-4">AI-powered Crane Selection & Safety Insights</p>
+        <button class="mt-6 bg-slate-900 text-yellow-500 px-6 py-2 rounded-lg font-bold hover:bg-gray-100 transition">Get Started</button>
+    </section>
+
+    <!-- Crane Comparison -->
+    <section id="compare" class="container mx-auto py-20 px-4">
+        <h2 class="text-3xl font-bold text-center text-yellow-500">🔍 Compare Cranes</h2>
+        <div class="mt-6 bg-gray-100 p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold mb-4 text-yellow-500">Filters</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <select class="p-2 border rounded bg-white text-yellow-500">
+                    <option>Brand</option>
+                    <option>Caterpillar</option>
+                    <option>Komatsu</option>
+                </select>
+                <select class="p-2 border rounded bg-white text-yellow-500">
+                    <option>Model</option>
+                </select>
+                <select class="p-2 border rounded bg-white text-yellow-500">
+                    <option>Max Lift Capacity</option>
+                </select>
+                <select class="p-2 border rounded bg-white text-yellow-500">
+                    <option>Wind Tolerance</option>
+                </select>
+            </div>
+            <div class="mt-6 text-center">
+                <button class="bg-yellow-500 text-white px-4 py-2 rounded font-bold hover:bg-yellow-400 transition">Compare</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Load Distribution Analysis -->
+    <section id="load-analysis" class="bg-gray-100 py-20 px-4">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold text-yellow-500">📊 Load Distribution Analysis</h2>
+            <form class="mt-6 bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+                <input type="number" placeholder="Weight of Load (kg)" class="w-full p-2 mb-4 border rounded bg-gray-100 text-yellow-500">
+                <input type="number" placeholder="Lifting Radius (m)" class="w-full p-2 mb-4 border rounded bg-gray-100 text-yellow-500">
+                <button class="bg-yellow-500 text-white px-4 py-2 rounded font-bold hover:bg-yellow-400 transition">Analyze</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Safe Lifting Recommendations -->
+    <section id="recommendations" class="container mx-auto py-20 px-4">
+        <h2 class="text-3xl font-bold text-center text-yellow-500">🦺 Safe Lifting Recommendations</h2>
+        <div class="mt-6 bg-gray-100 p-6 rounded-lg shadow-md text-center">
+            <p class="text-lg">✅ Recommended Crane: <span class="font-bold">Crane X</span></p>
+            <p class="text-lg text-red-500">⚠ Warning: Wind speed too high for safe lifting!</p>
+        </div>
+    </section>
+
+    <!-- AI Chatbot Section -->
+    <section id="chatbot" class="bg-yellow-500 py-20 text-center text-white">
+        <h2 class="text-3xl font-bold">🤖 AI Chatbot Assistance</h2>
+        <p class="mt-4">Need help selecting the right crane? Ask our AI-powered chatbot!</p>
+        <button class="mt-6 bg-white text-yellow-500 px-6 py-2 rounded-lg font-bold hover:bg-gray-100 transition">Chat Now</button>
+    </section>
+
+    <!-- Reports & Downloads -->
+    <section id="reports" class="bg-gray-100 py-20 text-center">
+        <h2 class="text-3xl font-bold text-yellow-500">📄 Reports & Downloads</h2>
+        <button class="mt-6 bg-yellow-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-yellow-400 transition">Download Report</button>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="bg-white py-20 text-center">
+        <h2 class="text-3xl font-bold text-yellow-500">📞 Contact Support</h2>
+        <button class="mt-6 bg-yellow-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-yellow-400 transition">Email Us</button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-yellow-500 text-white text-center py-6 mt-10">
+        <p>© 2025 CraneOpedia - Optimizing Lifting Operations</p>
+    </footer>
+
+</body>
+</html>
