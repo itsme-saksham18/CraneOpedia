@@ -1,24 +1,26 @@
-# 🚀 Craneopedia – The Future of Cranes with AR & AI  
+# 🚀 Craneopedia – AI-Powered, AR-Enabled Crane Decision Support Platform  
 
-**Craneopedia** is an innovative platform where technology meets **Augmented Reality (AR)** and **Artificial Intelligence (AI)**. Whether you want a **360° AR view of cranes** or need **expert AI-powered assistance**, Craneopedia has it all!  
+Bridging **Technology & Heavy Lifting** for a **Smarter, Safer, and More Efficient Future!**  
 
----
+🦾 **AI-Powered | AR-Enabled | Blockchain-Secured | IoT-Driven** 🌍  
 
 ## 🌟 Key Features  
 
-✅ **🔍 Have a Better View with AR Models** – Explore 3D crane models with **real-time interaction**.  
-✅ **🧠 AI-Powered Assistance** – Get instant, **expert-level insights** from an **AI chatbot** trained in crane technologies.  
-✅ **💡 Interactive & User-Friendly UI** – A seamless experience with a modern and responsive interface.  
-✅ **🚀 High-Performance AR Rendering** – Optimized to run smoothly without lag.  
+✅ **🔍 AI-Powered Crane Comparison Dashboard** – Recommends optimal cranes based on **lift capacity, wind tolerance, and radius**.  
+✅ **🧠 AI Assistance & Chatbot** – Get expert guidance and **real-time insights** about crane selection and risk assessment.  
+✅ **🦾 AR-Based Load Distribution Analysis** – Ensures **safe lifting operations** with **real-time AR simulations**.  
+✅ **🌍 Automated Disaster Response Matching** – AI **assigns the best-suited crane** for emergency sites.  
+✅ **🔗 Blockchain-Powered Risk Management** – Automates **insurance claims & predictive maintenance**.  
+✅ **📊 Smart Cost Analysis** – Helps in making **data-driven decisions** for buying or renting cranes.  
 
 ---
 
 ## 📸 Preview  
 
 🎥 **🚀 Experience Cranes in AR!** *(Click below to access the AR model)*  
-👉 **[View AR Model](https://your-ar-model-url.com)**  
+👉 **[View AR Model](https://crane-o-pedia.vercel.app/)**  
 
-🤖 **🧠 AI Chatbot in Action!** *(Chat with our AI assistant and get answers in real-time!)*  
+🤖 **🧠 AI Chatbot in Action!** *(Chat with our AI assistant and get real-time expert insights!)*  
 👉 **[Try the AI Chatbot](https://your-ai-chatbot-url.com)**  
 
 ---
@@ -27,27 +29,41 @@
 
 | Technology | Usage |
 |------------|--------|
-| **HTML, CSS, JS** | Frontend Development |
+| **React.js** | Frontend Development |
 | **Three.js / WebXR** | AR Functionality |
-| **AI Chatbot (Dialogflow/OpenAI API)** | Smart AI Assistance |
+| **Dialogflow / OpenAI API** | Smart AI Assistance |
 | **Node.js + Express.js** | Backend Server |
-| **MongoDB** | Database for chatbot interactions |
+| **MongoDB** | Database for storing interactions |
+| **Python** | Data analysis & AI model integration |
+| **AWS / Google Cloud** | Cloud hosting & scalability |
+| **Blockchain & Smart Contracts** | Insurance & risk management |
 
 ---
 
 ## 📖 How It Works?  
 
-1️⃣ **Open the Website** – [Craneopedia Live](crane-o-pedia.vercel.app)  
-2️⃣ **Click on AR Model** – Have a better **360° view of cranes in AR**  
-3️⃣ **Ask the AI Chatbot** – Get **instant answers** to all crane-related queries!  
+1️⃣ **User selects a project type** – (Construction, Disaster Recovery, Heavy Equipment Rental).  
+2️⃣ **AI compares cranes** based on operational parameters.  
+3️⃣ **Weather API checks** wind & climate conditions for safe operation.  
+4️⃣ **AR model simulates** load distribution and lifting conditions.  
+5️⃣ **Chatbot provides expert guidance** on crane selection.  
+6️⃣ **Automated disaster response system** deploys the best-suited crane.  
+7️⃣ **Blockchain validates insurance** & predictive maintenance AI suggests refurbishments.  
 
 ---
 
 ## 📂 Project Documentation  
 
-📄 **[📘 View Craneopedia Presentation](Docs/Craneopedia_Presentation.pdf)** *(Click to Open)*  
+📄 **[📘 Craneopedia Presentation (PDF)](Docs/Craneopedia_Presentation.pdf)** *(Click to Open)*  
 📁 **Source Code** – Available in this repository.  
 
 ---
 
-## **PROJECT STILL IN PROGRESS**
+## 🚀 Getting Started (For Developers)  
+
+Clone the repo and run locally:  
+```sh
+git clone https://github.com/your-username/Craneopedia.git
+cd Craneopedia
+npm install
+npm start
