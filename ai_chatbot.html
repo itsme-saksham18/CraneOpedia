@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crane Chatbot</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            color: white;
+        }
+
+        .chat-container {
+            width: 450px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+            margin-top: 50px;
+        }
+
+        .chat-box {
+            height: 350px;
+            overflow-y: auto;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f1f1f1;
+            border: 2px solid #ddd;
+        }
+
+        .chat-message {
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .bot {
+            text-align: left;
+            background: #007bff;
+            color: white;
+            margin-right: auto;
+            display: block;
+            width: fit-content;
+            animation: fadeIn 0.5s;
+        }
+
+        .user {
+            text-align: right;
+            background: #28a745;
+            color: white;
+            margin-left: auto;
+            display: block;
+            width: fit-content;
+            animation: fadeIn 0.5s;
+        }
+
+        input {
+            width: 75%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .contact-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .buy-rent-container {
+            margin-top: 15px;
+        }
+
+        .buy-rent-container button {
+            padding: 10px;
+            width: 45%;
+            background: #ff9800;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 5px;
+        }
+
+        .buy-rent-container button:hover {
+            background: #e68900;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h2 style="color: #333;">Crane Chatbot 🤖</h2>
+        <div class="chat-box" id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Type your answer..." onkeypress="handleKeyPress(event)">
+        <button onclick="processUserInput()">Send</button>
+
+        <!-- Buy/Rent Section -->
+        <div class="buy-rent-container" id="buy-rent-container" style="display: none;">
+            <h3>Do you want to Buy or Rent this crane?</h3>
+            <button onclick="selectOption('Buy')">Buy</button>
+            <button onclick="selectOption('Rent')">Rent</button>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="contact-info">
+            <p>📞 Contact: <b>+91 98765 43210</b></p>
+            <p>📧 Email: <b>support@cranehub.com</b></p>
+        </div>
+    </div>
+
+    <script>
+        let chatBox = document.getElementById("chat-box");
+        let userInput = document.getElementById("user-input");
+
+        let questions = [
+            "What is the load weight (tons)?",
+            "What is the lift radius (meters)?",
+            "What are the wind conditions? (Low, Medium, High)",
+            "What is the terrain type? (Soft, Hard, Uneven)",
+            "What is the lifting height (meters)?"
+        ];
+        
+        let userResponses = [];
+        let step = 0;
+
+        function appendMessage(text, sender) {
+            let message = document.createElement("p");
+            message.className = "chat-message " + sender;
+            message.textContent = text;
+            chatBox.appendChild(message);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function startChat() {
+            appendMessage("Hello! I am your crane recommendation assistant. 🏗️", "bot");
+            setTimeout(() => {
+                appendMessage(questions[step], "bot");
+            }, 1000);
+        }
+
+        function processUserInput() {
+            let answer = userInput.value.trim();
+            if (!answer) return;
+            
+            appendMessage(answer, "user");
+            userResponses.push(answer);
+            userInput.value = "";
+
+            step++;
+            if (step < questions.length) {
+                setTimeout(() => {
+                    appendMessage(questions[step], "bot");
+                }, 1000);
+            } else {
+                setTimeout(recommendCrane, 1000);
+            }
+        }
+
+        function recommendCrane() {
+            let weight = parseInt(userResponses[0]);
+            let radius = parseInt(userResponses[1]);
+            let wind = userResponses[2].toLowerCase();
+            let terrain = userResponses[3].toLowerCase();
+            let height = parseInt(userResponses[4]);
+
+            let recommendedCrane = "Tower Crane 🏗️";
+            let reason = "Suitable for stable terrains and high lifts.";
+
+            if (weight > 50 || radius > 60 || height > 100) {
+                recommendedCrane = "Crawler Crane 🚜";
+                reason = "Best for heavy loads and long distances.";
+            } 
+            if (wind === "high" || terrain === "uneven") {
+                recommendedCrane = "All-Terrain Crane 🚚";
+                reason = "Handles high wind & uneven ground effectively.";
+            }
+
+            appendMessage(`🔹 Recommended Crane: ${recommendedCrane}`, "bot");
+            appendMessage(`🔹 Reason: ${reason}`, "bot");
+            appendMessage(`✅ Ensure proper safety measures & load balancing! ⚠️`, "bot");
+
+            document.getElementById("buy-rent-container").style.display = "block";
+        }
+
+        function selectOption(choice) {
+            appendMessage(`You selected: ${choice}`, "user");
+            setTimeout(() => {
+                appendMessage(`Thank you! Our team will contact you for ${choice.toLowerCase()} details. 📞`, "bot");
+            }, 1000);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                processUserInput();
+            }
+        }
+
+        startChat();
+    </script>
+
+</body>
+</html>
