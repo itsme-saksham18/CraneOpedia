@@ -18,10 +18,10 @@ Bridging **Technology & Heavy Lifting** for a **Smarter, Safer, and More Efficie
 ## 📸 Preview  
 
 🎥 **🚀 Experience Cranes in AR!** *(Click below to access the AR model)*  
-👉 **[View AR Model](https://crane-o-pedia.vercel.app/)**  
+👉 **[View AR Model](https://p.plugxr.com/bvECwvd)**  
 
 🤖 **🧠 AI Chatbot in Action!** *(Chat with our AI assistant and get real-time expert insights!)*  
-👉 **[Try the AI Chatbot](https://your-ai-chatbot-url.com)**  
+👉 **[Try the AI Chatbot](https://crane-o-pedia.vercel.app/ai_chatbot.html)**  
 
 ---
 
