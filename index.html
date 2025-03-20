@@ -6,6 +6,7 @@
     <title>CraneOpedia - Optimizing Lifting Operations</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="index.css">
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>    
 </head>
 <body class="bg-white text-yellow-500">
 
@@ -80,6 +81,42 @@
         </div>
     </section>
 
+     <!-- AR Experience Section -->
+     <section class="text-center py-20">
+        <h1 class="text-3xl font-bold">Craneopedia AR Experience</h1>
+        <p class="text-lg mt-2">Click the button to view the crane model in AR.</p>
+
+        <!-- Model Viewer (Initially Hidden) -->
+        <model-viewer 
+            id="craneViewer"
+            src="tower_crane.glb" 
+            ar 
+            ar-modes="scene-viewer quick-look"
+            style="display: none;">
+        </model-viewer>
+
+        <!-- View in AR Button -->
+        <button onclick="viewInAR()" class="mt-4 bg-yellow-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-yellow-400 transition">
+            View in AR
+        </button>
+    </section>
+
+    <script>
+        function viewInAR() {
+            let modelViewer = document.getElementById("craneViewer");
+            modelViewer.style.display = "block"; // Show the model viewer
+
+            // Ensure AR mode is triggered when supported
+            if (modelViewer.canActivateAR) {
+                modelViewer.activateAR();
+            } else {
+                alert("AR mode not supported on this device.");
+            }
+        }
+    </script>
+    
+
+
     <!-- AI Chatbot Section -->
     <section id="chatbot" class="bg-yellow-500 py-20 text-center text-white">
         <h2 class="text-3xl font-bold">🤖 AI Chatbot Assistance</h2>
@@ -103,6 +140,7 @@
     <footer class="bg-yellow-500 text-white text-center py-6 mt-10">
         <p>© 2025 CraneOpedia - Optimizing Lifting Operations</p>
     </footer>
+
 
 </body>
 </html>
