@@ -39,19 +39,19 @@
         <div class="mt-6 bg-gray-100 p-6 rounded-lg shadow-md">
             <h3 class="text-xl font-semibold mb-4 text-yellow-500">Filters</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <select class="p-2 border rounded bg-white text-yellow-500">
-                    <option>Brand</option>
-                    <option>Caterpillar</option>
-                    <option>Komatsu</option>
+                <select id="typeSelect" class="p-2 border rounded bg-white text-yellow-500">
+                    <option value="">Select Type</option>
+                    <option value="All-Terrain Crane">All-Terrain Crane</option>
+                    <option value="Crawler Crane">Crawler Crane</option>
+                    <option value="Engine Crane">Engine Crane</option>
+                    <option value="Mobile Crane">Mobile Crane</option>
+                    <option value="Tower Crane">Tower Crane</option>                    
                 </select>
-                <select class="p-2 border rounded bg-white text-yellow-500">
-                    <option>Model</option>
+                <select id="manufacturerSelect" class="p-2 border rounded bg-white text-yellow-500">
+                    <option value="">Select Model</option>
                 </select>
-                <select class="p-2 border rounded bg-white text-yellow-500">
-                    <option>Max Lift Capacity</option>
-                </select>
-                <select class="p-2 border rounded bg-white text-yellow-500">
-                    <option>Wind Tolerance</option>
+                <select id="modelSelect" class="p-2 border rounded bg-white text-yellow-500">
+                    <option value="">Select Model</option>
                 </select>
             </div>
             <div class="mt-6 text-center">
@@ -89,9 +89,10 @@
         <!-- Model Viewer (Initially Hidden) -->
         <model-viewer 
             id="craneViewer"
-            src="tower_crane.glb" 
+            src="" 
             ar 
             ar-modes="scene-viewer quick-look"
+            camera-controls 
             style="display: none;">
         </model-viewer>
 
@@ -141,6 +142,6 @@
         <p>© 2025 CraneOpedia - Optimizing Lifting Operations</p>
     </footer>
 
-
+    <script src="/index.js"></script>
 </body>
 </html>
