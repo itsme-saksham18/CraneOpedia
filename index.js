@@ -167,4 +167,55 @@ document.getElementById('arRow').innerHTML += `
 
 
 }
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const weightInput = document.getElementById("weightInput");
+    const radiusInput = document.getElementById("radiusInput");
+    const resultText = document.getElementById("resultText");
+    const ctx = document.getElementById("loadChart").getContext("2d");
 
+    let chartInstance;
+
+    analyzeBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+
+        let weight = parseFloat(weightInput.value);
+        let radius = parseFloat(radiusInput.value);
+
+        if (isNaN(weight) || isNaN(radius) || weight <= 0 || radius <= 0) {
+            resultText.innerHTML = `<span class="text-red-500">Please enter valid values!</span>`;
+            return;
+        }
+
+        let loadMoment = weight * radius;
+        resultText.innerHTML = `<strong>Load Moment: ${loadMoment.toFixed(2)} kNm</strong>`;
+
+        // Destroy existing chart before creating a new one
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        // Create Chart Visualization
+        chartInstance = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: ["Weight (kg)", "Lifting Radius (m)", "Load Moment (kNm)"],
+                datasets: [
+                    {
+                        label: "Load Distribution",
+                        data: [weight, radius, loadMoment],
+                        backgroundColor: ["#facc15", "#4ade80", "#f43f5e"],
+                        borderColor: ["#eab308", "#22c55e", "#dc2626"],
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    },
+                },
+            },
+        });
+    });

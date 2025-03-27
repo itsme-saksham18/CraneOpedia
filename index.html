@@ -60,17 +60,23 @@
         </div>
     </section>
 
-    <!-- Load Distribution Analysis -->
-    <section id="load-analysis" class="bg-gray-100 py-20 px-4">
-        <div class="container mx-auto text-center">
-            <h2 class="text-3xl font-bold text-yellow-500">📊 Load Distribution Analysis</h2>
-            <form class="mt-6 bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-                <input type="number" placeholder="Weight of Load (kg)" class="w-full p-2 mb-4 border rounded bg-gray-100 text-yellow-500">
-                <input type="number" placeholder="Lifting Radius (m)" class="w-full p-2 mb-4 border rounded bg-gray-100 text-yellow-500">
-                <button class="bg-yellow-500 text-white px-4 py-2 rounded font-bold hover:bg-yellow-400 transition">Analyze</button>
-            </form>
-        </div>
-    </section>
+   <!-- Load Distribution Analysis -->
+   <section id="load-analysis" class="bg-gray-100 py-20 px-4">
+    <div class="container mx-auto text-center">
+        <h2 class="text-3xl font-bold text-yellow-500">📊 Load Distribution Analysis</h2>
+        <form id="loadForm" class="mt-6 bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+            <input id="weightInput" type="number" placeholder="Weight of Load (kg)" 
+                class="w-full p-2 mb-4 border rounded bg-gray-100 text-yellow-500">
+            <input id="radiusInput" type="number" placeholder="Lifting Radius (m)" 
+                class="w-full p-2 mb-4 border rounded bg-gray-100 text-yellow-500">
+            <button id="analyzeBtn" class="bg-yellow-500 text-white px-4 py-2 rounded font-bold 
+                hover:bg-yellow-400 transition">Analyze</button>
+        </form>
+        <p id="resultText" class="mt-4 text-xl font-semibold text-gray-800"></p>
+        <canvas id="loadChart" class="mt-6"></canvas>
+    </div>
+</section>
+
 
     <!-- Safe Lifting Recommendations -->
     <section id="recommendations" class="container mx-auto py-20 px-4">
@@ -141,7 +147,7 @@
     <footer class="bg-yellow-500 text-white text-center py-6 mt-10">
         <p>© 2025 CraneOpedia - Optimizing Lifting Operations</p>
     </footer>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/index.js"></script>
 </body>
 </html>
