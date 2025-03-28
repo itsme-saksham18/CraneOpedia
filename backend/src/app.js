@@ -5,7 +5,9 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const connectDB = require('./config/db.js');
 const Crane = require('./model/cranes.js');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const port = 8080;
+const ai = new GoogleGenerativeAI("AIzaSyDh1TZGs9qrl3oaQ3L0yPLg5NllAy1YRAk");
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -60,6 +62,56 @@ connectDB().then(() => {
     }
   });
   
+  //Details for gemini api
+
+  app.post("/recommend-crane", async (req, res) => {
+    const { weight, radius, wind, terrain, height } = req.body;
+
+    if (!weight || !radius || !wind || !terrain || !height) {
+        return res.status(400).json({ error: "Missing input parameters." });
+    }
+
+    try {
+        const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+        const prompt =  `Suggest the best crane type based on these parameters:
+        Load Weight: ${weight} tons, Lift Radius: ${radius} meters, Wind Conditions: ${wind}, 
+        Terrain: ${terrain}, Lifting Height: ${height} meters.
+        
+        Provide a structured JSON response like this:
+        {
+          "recommendedCrane": "Type of Crane",
+          "reasons": [
+            "Reason 1",
+            "Reason 2",
+            "Reason 3"
+          ],
+          "alternativeOptions": [
+            "Alternative 1",
+            "Alternative 2"
+          ],
+          "safetyRecommendations": [
+            "Safety Tip 1",
+            "Safety Tip 2"
+          ]
+        }
+        `;
+
+        const result = await model.generateContent({ contents: [{ parts: [{ text: prompt }] }] });
+        const responseText = result.response.text();
+
+        // Parse AI response to extract JSON correctly
+        const jsonStart = responseText.indexOf("{");
+        const jsonEnd = responseText.lastIndexOf("}");
+        const structuredResponse = JSON.parse(responseText.substring(jsonStart, jsonEnd + 1));
+
+        res.json(structuredResponse);
+    } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "AI model failed to process request." });
+    }
+});
+
 
   app.listen(port, () => {
     console.log(`🚀 Server is running on port: ${port}`);

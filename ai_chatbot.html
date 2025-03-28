@@ -137,94 +137,128 @@
     </div>
 
     <script>
-        let chatBox = document.getElementById("chat-box");
-        let userInput = document.getElementById("user-input");
+    let chatBox = document.getElementById("chat-box");
+let userInput = document.getElementById("user-input");
 
-        let questions = [
-            "What is the load weight (tons)?",
-            "What is the lift radius (meters)?",
-            "What are the wind conditions? (Low, Medium, High)",
-            "What is the terrain type? (Soft, Hard, Uneven)",
-            "What is the lifting height (meters)?"
-        ];
-        
-        let userResponses = [];
-        let step = 0;
+let questions = [
+    "What is the load weight (tons)?",
+    "What is the lift radius (meters)?",
+    "What are the wind conditions? (Low, Medium, High)",
+    "What is the terrain type? (Soft, Hard, Uneven)",
+    "What is the lifting height (meters)?"
+];
 
-        function appendMessage(text, sender) {
-            let message = document.createElement("p");
-            message.className = "chat-message " + sender;
-            message.textContent = text;
-            chatBox.appendChild(message);
-            chatBox.scrollTop = chatBox.scrollHeight;
+let userResponses = [];
+let step = 0;
+
+function appendMessage(text, sender, isHTML = false) {
+    let message = document.createElement("p");
+    message.className = "chat-message " + sender;
+
+    if (isHTML) {
+        message.innerHTML = text; // Supports HTML formatting
+    } else {
+        message.textContent = text; // Prevents raw HTML tag display
+    }
+
+    chatBox.appendChild(message);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function startChat() {
+    appendMessage("Hello! I am your crane recommendation assistant. 🏗️", "bot");
+    setTimeout(() => {
+        appendMessage(questions[step], "bot");
+    }, 1000);
+}
+
+function processUserInput() {
+    let answer = userInput.value.trim();
+    if (!answer) return;
+
+    appendMessage(answer, "user");
+    userResponses.push(answer);
+    userInput.value = "";
+
+    step++;
+    if (step < questions.length) {
+        setTimeout(() => {
+            appendMessage(questions[step], "bot");
+        }, 1000);
+    } else {
+        setTimeout(sendToBackend, 1000);
+    }
+}
+
+async function sendToBackend() {
+    appendMessage("Analyzing your input... ⏳", "bot");
+
+    let requestData = {
+        weight: parseInt(userResponses[0]),
+        radius: parseInt(userResponses[1]),
+        wind: userResponses[2].toLowerCase(),
+        terrain: userResponses[3].toLowerCase(),
+        height: parseInt(userResponses[4])
+    };
+
+    try {
+        let response = await fetch("http://localhost:8080/recommend-crane", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData)
+        });
+
+        let data = await response.json();
+
+        appendMessage(`<b>🔹 AI Recommended Crane:</b> ${data.recommendedCrane}`, "bot", true);
+
+        if (data.reasons?.length > 0) {
+            appendMessage(
+                `<b>🔹 Reasons:</b><br>• ${data.reasons.join("<br>• ")}`,
+                "bot",
+                true
+            );
         }
 
-        function startChat() {
-            appendMessage("Hello! I am your crane recommendation assistant. 🏗️", "bot");
-            setTimeout(() => {
-                appendMessage(questions[step], "bot");
-            }, 1000);
+        if (data.alternativeOptions?.length > 0) {
+            appendMessage(
+                `<b>🔄 Alternative Options:</b><br>• ${data.alternativeOptions.join("<br>• ")}`,
+                "bot",
+                true
+            );
         }
 
-        function processUserInput() {
-            let answer = userInput.value.trim();
-            if (!answer) return;
-            
-            appendMessage(answer, "user");
-            userResponses.push(answer);
-            userInput.value = "";
+        // if (data.safetyRecommendations?.length > 0) {
+        //     appendMessage(
+        //         `<b>⚠ Safety Recommendations:</b><br>• ${data.safetyRecommendations.join("<br>• ")}`,
+        //         "bot",
+        //         true
+        //     );
+        // }
 
-            step++;
-            if (step < questions.length) {
-                setTimeout(() => {
-                    appendMessage(questions[step], "bot");
-                }, 1000);
-            } else {
-                setTimeout(recommendCrane, 1000);
-            }
-        }
+        document.getElementById("buy-rent-container").style.display = "block";
+    } catch (error) {
+        appendMessage("❌ Error getting crane recommendation. Please try again.", "bot");
+    }
+}
 
-        function recommendCrane() {
-            let weight = parseInt(userResponses[0]);
-            let radius = parseInt(userResponses[1]);
-            let wind = userResponses[2].toLowerCase();
-            let terrain = userResponses[3].toLowerCase();
-            let height = parseInt(userResponses[4]);
+function selectOption(choice) {
+    appendMessage(`You selected: ${choice}`, "user");
+    setTimeout(() => {
+        appendMessage(`Thank you! Our team will contact you for ${choice.toLowerCase()} details. 📞`, "bot");
+    }, 1000);
+}
 
-            let recommendedCrane = "Tower Crane 🏗️";
-            let reason = "Suitable for stable terrains and high lifts.";
+function handleKeyPress(event) {
+    if (event.key === "Enter") {
+        processUserInput();
+    }
+}
 
-            if (weight > 50 || radius > 60 || height > 100) {
-                recommendedCrane = "Crawler Crane 🚜";
-                reason = "Best for heavy loads and long distances.";
-            } 
-            if (wind === "high" || terrain === "uneven") {
-                recommendedCrane = "All-Terrain Crane 🚚";
-                reason = "Handles high wind & uneven ground effectively.";
-            }
+userInput.addEventListener("keypress", handleKeyPress);
+startChat();
 
-            appendMessage(`🔹 Recommended Crane: ${recommendedCrane}`, "bot");
-            appendMessage(`🔹 Reason: ${reason}`, "bot");
-            appendMessage(`✅ Ensure proper safety measures & load balancing! ⚠️`, "bot");
-
-            document.getElementById("buy-rent-container").style.display = "block";
-        }
-
-        function selectOption(choice) {
-            appendMessage(`You selected: ${choice}`, "user");
-            setTimeout(() => {
-                appendMessage(`Thank you! Our team will contact you for ${choice.toLowerCase()} details. 📞`, "bot");
-            }, 1000);
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                processUserInput();
-            }
-        }
-
-        startChat();
-    </script>
+</script>    
 
 </body>
 </html>
