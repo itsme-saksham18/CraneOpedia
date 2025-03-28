@@ -8,6 +8,13 @@ const Crane = require('./model/cranes.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const port = 8080;
 const ai = new GoogleGenerativeAI("AIzaSyDh1TZGs9qrl3oaQ3L0yPLg5NllAy1YRAk");
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -34,6 +41,7 @@ connectDB().then(() => {
 
   app.get('/getModels', async (req, res) => {
     const manufacturer = req.query.manufacturer;
+    console.log('Manufacturer:', manufacturer);
     if (!manufacturer) {
       return res.status(400).json({ error: 'Manufacturer parameter is required' });
     }
@@ -51,6 +59,7 @@ connectDB().then(() => {
     const model = req.query.model;
     try {
       const crane = await Crane.findOne({ model });
+      console.log('Crane found:', crane);
       if (crane) {
         console.log('Crane found:', crane);
         res.json(crane);

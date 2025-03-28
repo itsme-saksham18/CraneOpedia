@@ -8,7 +8,7 @@
         body {
             font-family: 'Arial', sans-serif;
             text-align: center;
-            background: linear-gradient(to right, #1e3c72, #2a5298);
+            background: linear-gradient(to right, #fddf47e8, #f7c911ef);
             color: white;
         }
 
@@ -18,8 +18,14 @@
             background: white;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
             margin-top: 50px;
+            background: rgba(255, 255, 255, 0.28);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(9.8px);
+            -webkit-backdrop-filter: blur(9.8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+
         }
 
         .chat-box {
@@ -119,7 +125,7 @@
     <div class="chat-container">
         <h2 style="color: #333;">Crane Chatbot 🤖</h2>
         <div class="chat-box" id="chat-box"></div>
-        <input type="text" id="user-input" placeholder="Type your answer..." onkeypress="handleKeyPress(event)">
+        <input type="text" id="user-input" placeholder="Type your answer..." onkeypress="handleKeyPress(event)" style="border: #333 solid 2px; border-radius: 5px; padding: 10px; margin-right: 10px;">
         <button onclick="processUserInput()">Send</button>
 
         <!-- Buy/Rent Section -->
