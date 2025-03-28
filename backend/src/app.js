@@ -89,10 +89,6 @@ connectDB().then(() => {
           "alternativeOptions": [
             "Alternative 1",
             "Alternative 2"
-          ],
-          "safetyRecommendations": [
-            "Safety Tip 1",
-            "Safety Tip 2"
           ]
         }
         `;
