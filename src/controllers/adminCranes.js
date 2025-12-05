@@ -72,14 +72,16 @@ module.exports.uploadArModel = async (req, res) => {
 
 // 8. View Crane Details
 module.exports.viewCraneDetails = async (req, res) => {
-    try {
-        const crane = await Crane.findById(req.params.id);
-        res.json({ crane });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Error fetching crane details" });
+    const crane = await Crane.findById(req.params.id);
+
+    if (!crane || crane.owner.toString() !== req.user._id.toString()) {
+        req.flash("error", "Not authorized");
+        return res.redirect("/admin/cranes");
     }
+
+    res.json({ crane });
 };
+
 
 // 9. Upload Images
 module.exports.uploadImages = async (req, res) => {

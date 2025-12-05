@@ -1,6 +1,9 @@
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const Admin = require("../models/Admin");
+const Crane = require("../models/Crane");
+const Inquiry = require("../models/Inquiry");
+
 
 module.exports.getSignup = (req, res) => {
     res.send("ADMIN SIGNUP - FRONTEND LATER");
@@ -56,5 +59,39 @@ module.exports.logout = (req, res) => {
 };
 
 module.exports.dashboard = async (req, res) => {
-    res.send("ADMIN DASHBOARD - FRONTEND AFTER BACKEND");
+    const cranes = await Crane.find({ owner: req.user._id });
+
+    const inquiryCount = await Inquiry.countDocuments({ admin: req.user._id });
+
+    res.json({
+        message: "Admin Dashboard",
+        admin: req.user,
+        cranes,
+        stats: {
+            totalCranes: cranes.length,
+            totalInquiries: inquiryCount,
+        }
+    });
 };
+
+module.exports.listInquiries = async (req, res) => {
+    const inquiries = await Inquiry.find({ admin: req.user._id })
+        .populate("crane")
+        .sort({ createdAt: -1 });
+
+    res.json({ inquiries });
+};
+
+module.exports.viewInquiry = async (req, res) => {
+    const inquiry = await Inquiry.findById(req.params.id)
+        .populate("crane")
+        .populate("admin");
+
+    if (!inquiry) {
+        req.flash("error", "Inquiry not found");
+        return res.redirect("/admin/inquiries");
+    }
+
+    res.json({ inquiry });
+};
+

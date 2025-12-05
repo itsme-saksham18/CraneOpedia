@@ -15,6 +15,9 @@ router.route("/signup")
 router.get("/logout", adminController.logout);
 
 // Dashboard
-router.get("/", ensureAdmin, adminController.dashboard);
+router.get("/dashboard", ensureAdmin, adminController.dashboard);
+router.get("/inquiries", ensureAdmin, adminController.listInquiries);
+router.get("/inquiries/:id", ensureAdmin, adminController.viewInquiry);
+
 
 module.exports = router;
