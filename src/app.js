@@ -51,11 +51,10 @@ app.use((req, res, next) => {
 const adminRoutes = require('./routes/admin');
 const adminCranesRoutes = require('./routes/adminCranes');
 const craneRoutes = require('./routes/cranes');
+const homeRoutes = require('./routes/home');
+const aiRoutes = require('./routes/ai');
 
-// Placeholder routes
-app.get("/", (req, res) => {
-  res.send("Craneopedia Backend Running…");
-});
+
 
 // DB Connection
 require("./config/db")();
@@ -64,9 +63,15 @@ require("./config/db")();
 
 
 //Request Route Kari jayegi yaha
+app.use('/', homeRoutes);
 app.use('/admin', adminRoutes);
 app.use('/admin/cranes', adminCranesRoutes);
 app.use('/cranes', craneRoutes);
+app.use('/ai', aiRoutes);
+app.get("/debug/session", (req, res) => {
+    res.json(req.session);
+});
+
 
 // Server start
 const PORT = process.env.PORT || 5000;
