@@ -80,3 +80,55 @@ module.exports.viewCraneDetails = async (req, res) => {
         res.status(500).json({ error: "Error fetching crane details" });
     }
 };
+
+// 9. Upload Images
+module.exports.uploadImages = async (req, res) => {
+    try {
+        const crane = await Crane.findById(req.params.id);
+
+        req.files.forEach(file => {
+            crane.images.push(file.path); // cloudinary URL
+        });
+
+        await crane.save();
+
+        res.json({ message: "Images uploaded", images: crane.images });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error uploading images" });
+    }
+};
+
+// 10. Upload Load Charts
+module.exports.uploadCharts = async (req, res) => {
+    try {
+        const crane = await Crane.findById(req.params.id);
+
+        req.files.forEach(file => {
+            crane.load_charts.push(file.path);
+        });
+
+        await crane.save();
+
+        res.json({ message: "Load charts uploaded", charts: crane.load_charts });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Upload failed" });
+    }
+};
+
+// 11. Upload AR Model
+module.exports.uploadArModel = async (req, res) => {
+    try {
+        const crane = await Crane.findById(req.params.id);
+
+        crane.ar_link = req.file.path; // cloudinary URL
+
+        await crane.save();
+
+        res.json({ message: "AR model uploaded", ar_link: crane.ar_link });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "AR model upload failed" });
+    }
+};
