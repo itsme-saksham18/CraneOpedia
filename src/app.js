@@ -52,8 +52,8 @@ const adminRoutes = require('./routes/admin');
 const adminCranesRoutes = require('./routes/adminCranes');
 const craneRoutes = require('./routes/cranes');
 const homeRoutes = require('./routes/home');
-const aiRoutes = require('./routes/ai');
-
+const aiRoutes = require('./routes/aiRoutes');
+const favoriteRoutes = require('./routes/favorites');
 
 
 // DB Connection
@@ -68,6 +68,7 @@ app.use('/admin', adminRoutes);
 app.use('/admin/cranes', adminCranesRoutes);
 app.use('/cranes', craneRoutes);
 app.use('/ai', aiRoutes);
+app.use('/favorites', favoriteRoutes);
 app.get("/debug/session", (req, res) => {
     res.json(req.session);
 });
