@@ -50,6 +50,7 @@ app.use((req, res, next) => {
 //Routers import honge yaha
 const adminRoutes = require('./routes/admin');
 const adminCranesRoutes = require('./routes/adminCranes');
+const craneRoutes = require('./routes/cranes');
 
 // Placeholder routes
 app.get("/", (req, res) => {
@@ -65,6 +66,7 @@ require("./config/db")();
 //Request Route Kari jayegi yaha
 app.use('/admin', adminRoutes);
 app.use('/admin/cranes', adminCranesRoutes);
+app.use('/cranes', craneRoutes);
 
 // Server start
 const PORT = process.env.PORT || 5000;
