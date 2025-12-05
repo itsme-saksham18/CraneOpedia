@@ -7,6 +7,9 @@ const methodOverride = require("method-override");
 const morgan = require("morgan");
 const path = require("path");
 require("dotenv").config();
+const passportConfig = require("./config/passport");
+const cors = require("cors");
+
 
 const app = express();
 
@@ -16,6 +19,7 @@ app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(cors());
 
 // Session
 app.use(
@@ -29,6 +33,8 @@ app.use(
 // Flash messages
 app.use(flash());
 
+passportConfig(passport);
+
 // Passport
 app.use(passport.initialize());
 app.use(passport.session());
@@ -40,6 +46,11 @@ app.use((req, res, next) => {
   next();
 });
 
+
+//Routers import honge yaha
+const adminRoutes = require('./routes/admin');
+const adminCranesRoutes = require('./routes/adminCranes');
+
 // Placeholder routes
 app.get("/", (req, res) => {
   res.send("Craneopedia Backend Running…");
@@ -47,6 +58,13 @@ app.get("/", (req, res) => {
 
 // DB Connection
 require("./config/db")();
+
+
+
+
+//Request Route Kari jayegi yaha
+app.use('/admin', adminRoutes);
+app.use('/admin/cranes', adminCranesRoutes);
 
 // Server start
 const PORT = process.env.PORT || 5000;
