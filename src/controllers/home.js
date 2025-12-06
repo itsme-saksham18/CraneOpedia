@@ -82,65 +82,6 @@ module.exports.getModels = async (req, res) => {
         res.json([]);
     }
 };
-// Add crane to comparison
-module.exports.addToComparison = async (req, res) => {
-    const id = req.params.id;
-
-    if (!req.session.comparison) {
-        req.session.comparison = [];
-    }
-
-    // Already added?
-    if (req.session.comparison.includes(id)) {
-        return res.json({
-            duplicate: true,
-            message: "This crane is already in comparison"
-        });
-    }
-
-    // Limit 5 cranes
-    if (req.session.comparison.length >= 5) {
-        return res.json({
-            limitReached: true,
-            message: "Maximum 5 cranes allowed in comparison"
-        });
-    }
-
-    req.session.comparison.push(id);
-
-    // THIS WAS MISSING — fetch crane object
-    const crane = await Crane.findById(id).lean();
-
-    res.json({
-        added: true,
-        comparison: req.session.comparison,
-        crane   // ← RETURN THE CRANE OBJECT HERE
-    });
-};
-
-
-// Remove crane from comparison
-module.exports.removeFromComparison = (req, res) => {
-    const id = req.params.id;
-
-    req.session.comparison = (req.session.comparison || []).filter(
-        craneId => craneId !== id
-    );
-
-    res.json({
-        removed: true,
-        comparison: req.session.comparison
-    });
-};
-
-// Get comparison data (full crane objects)
-module.exports.getComparison = async (req, res) => {
-    const ids = req.session.comparison || [];
-
-    const cranes = await Crane.find({ _id: { $in: ids } });
-
-    res.json({ cranes });
-};
 
 module.exports.calculateLoadAnalysis = (req, res) => {
     const { loadWeight, boomLength, radius, terrain, wind } = req.body;
@@ -170,50 +111,4 @@ module.exports.calculateLoadAnalysis = (req, res) => {
             loadVector: loadWeight * 9.8
         }
     });
-};
-
-// Add crane to comparison from request body
-module.exports.addToComparisonFromBody = (req, res) => {
-    const { craneId } = req.body; // Get from request body, not params
-    const id = craneId; // Use the ID from body
-
-    if (!req.session.comparison) {
-        req.session.comparison = [];
-    }
-
-    // Already added?
-    if (req.session.comparison.includes(id)) {
-        return res.status(400).json({ // Return 400 status for client errors
-            success: false,
-            error: "This crane is already in comparison"
-        });
-    }
-
-    // Limit 5 cranes
-    if (req.session.comparison.length >= 5) {
-        return res.status(400).json({
-            success: false,
-            error: "Maximum 5 cranes allowed in comparison"
-        });
-    }
-
-    req.session.comparison.push(id);
-
-    // Also fetch and return the crane data for frontend display
-    Crane.findById(id).lean()
-        .then(crane => {
-            res.json({
-                success: true,
-                message: "Crane added to comparison",
-                comparison: req.session.comparison,
-                crane: crane // Return crane data for frontend
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching crane:', error);
-            res.status(500).json({
-                success: false,
-                error: "Error adding crane to comparison"
-            });
-        });
 };
