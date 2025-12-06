@@ -134,7 +134,6 @@ function initDropdowns() {
     // Model Change Event
     modelSelect.addEventListener('change', async function() {
         const modelId = this.value;
-        const selectedOption = this.options[this.selectedIndex];
         
         if (!modelId) {
             addButton.disabled = true;
@@ -143,14 +142,13 @@ function initDropdowns() {
         }
 
         try {
-            // Fetch crane details
+            // Fetch crane details (READ ONLY, no session)
             const response = await fetch(`/cranes/${modelId}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             
-            // Extract crane object from response - your API returns {crane: {...}}
             const crane = data.crane;
             
             if (!crane) {
@@ -185,11 +183,8 @@ function initDropdowns() {
         
         manufacturers.forEach(manufacturer => {
             const option = document.createElement('option');
-            
-            // Your API returns objects with _id and name
             option.value = manufacturer._id || manufacturer.name;
             option.textContent = manufacturer.name || manufacturer._id;
-            
             manufacturerSelect.appendChild(option);
         });
         
@@ -209,11 +204,8 @@ function initDropdowns() {
         
         models.forEach(model => {
             const option = document.createElement('option');
-            
-            // Your API returns objects with model details
             option.value = model._id;
             
-            // Create display text
             let displayText = model.model || 'Unknown Model';
             if (model.max_load_capacity) {
                 displayText += ` - ${model.max_load_capacity}`;
@@ -222,13 +214,6 @@ function initDropdowns() {
                 displayText += ` (${model.boom_length} boom)`;
             }
             option.textContent = displayText;
-            
-            // Store data for preview
-            option.dataset.capacity = model.max_load_capacity || '';
-            option.dataset.boomLength = model.boom_length || '';
-            option.dataset.image = model.image || '';
-            option.dataset.manufacturer = model.manufacturer || '';
-            option.dataset.type = model.type || '';
             
             modelSelect.appendChild(option);
         });
@@ -263,11 +248,12 @@ function initDropdowns() {
         }
     }
 
-    // Add to Comparison Button
-    addButton.addEventListener('click', async function() {
+    // Add to Comparison Button (PURE FRONTEND)
+    addButton.addEventListener('click', function() {
         if (!selectedCrane) return;
         console.log('Add to Comparison clicked');
-        // Check if crane is already in comparison
+
+        // Check if crane is already in comparison (card layout)
         const existingCrane = document.querySelector(`[data-crane-id="${selectedCrane._id}"]`);
         if (existingCrane) {
             showFlashMessage('This crane is already in comparison', 'warning');
@@ -280,37 +266,17 @@ function initDropdowns() {
             showFlashMessage('Maximum 5 cranes allowed in comparison', 'error');
             return;
         }
-        
-        try {
-            // Add to comparison via POST
-            const response = await fetch('/compare/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ craneId: selectedCrane._id })
-            });
-            
-            if (response.ok) {
-                const result = await response.json();
-                showFlashMessage('Crane added to comparison', 'success');
-                
-                // Update comparison table (GLOBAL function)
-                if (typeof window.addCraneToComparison === 'function') {
-                    window.addCraneToComparison(result.crane);
-                    window.addCraneToComparisonTable(result.crane); 
-                }
-                
-                // Clear selection
-                clearSelection();
-            } else {
-                const error = await response.json();
-                showFlashMessage(error.error || 'Error adding crane to comparison', 'error');
-            }
-        } catch (error) {
-            console.error('Error adding to comparison:', error);
-            showFlashMessage('Error adding crane to comparison', 'error');
+
+        // FRONTEND ONLY: Update both comparison UIs
+        if (typeof window.addCraneToComparison === 'function') {
+            window.addCraneToComparison(selectedCrane);
         }
+        if (typeof window.addCraneToComparisonTable === 'function') {
+            window.addCraneToComparisonTable(selectedCrane);
+        }
+
+        showFlashMessage('Crane added to comparison', 'success');
+        clearSelection();
     });
 
     // Clear Selection Button
@@ -342,47 +308,51 @@ function initComparisonTable() {
     const comparisonCount = document.getElementById('comparisonCount');
     const startComparisonBtn = document.getElementById('startComparison');
 
-    // Remove Crane from Comparison
-    document.addEventListener('click', async function(e) {
+    // Remove Crane from Comparison (FRONTEND ONLY)
+    document.addEventListener('click', function(e) {
         if (e.target.closest('.remove-btn')) {
             const removeBtn = e.target.closest('.remove-btn');
             const craneId = removeBtn.dataset.craneId;
             
-            try {
-                const response = await fetch(`/compare/remove/${craneId}`, {
-                    method: 'POST'
-                });
-                
-                if (response.ok) {
-                    showFlashMessage('Crane removed from comparison', 'info');
-                    
-                    // Remove from UI
-                    const column = removeBtn.closest('.comparison-column');
-                    column.style.animation = 'slideIn 0.3s ease reverse forwards';
-                    setTimeout(() => {
-                        column.remove();
-                        updateComparisonUI();
-                    }, 300);
-                }
-            } catch (error) {
-                console.error('Error removing crane:', error);
-                showFlashMessage('Error removing crane', 'error');
+            // Remove from card-based comparison
+            const column = removeBtn.closest('.comparison-column');
+            if (column) {
+                column.style.animation = 'slideIn 0.3s ease reverse forwards';
+                setTimeout(() => {
+                    column.remove();
+                    updateComparisonUI();
+                }, 300);
             }
+
+            // Remove from actual comparison table
+            const actualTable = document.getElementById('actualComparisonTable');
+            if (actualTable) {
+                const cells = actualTable.querySelectorAll(`[data-crane-id="${craneId}"]`);
+                cells.forEach(cell => cell.remove());
+
+                // If only "Feature" column left, remove the whole table
+                const headerRow = actualTable.querySelector('#headerRow');
+                if (headerRow && headerRow.children.length <= 1) {
+                    actualTable.remove();
+                }
+            }
+
+            showFlashMessage('Crane removed from comparison', 'info');
         }
     });
 
     // Add Column Click
     document.addEventListener('click', function(e) {
         if (e.target.closest('.add-column')) {
-            // Scroll to search section
             document.getElementById('search-section').scrollIntoView({ behavior: 'smooth' });
             
-            // Highlight search form
             const searchCard = document.querySelector('.search-card');
-            searchCard.style.animation = 'highlight 1s ease';
-            setTimeout(() => {
-                searchCard.style.animation = '';
-            }, 1000);
+            if (searchCard) {
+                searchCard.style.animation = 'highlight 1s ease';
+                setTimeout(() => {
+                    searchCard.style.animation = '';
+                }, 1000);
+            }
         }
     });
 
@@ -393,35 +363,29 @@ function initComparisonTable() {
         });
     }
 
-    // Export Comparison
+    // Export Comparison (still placeholder)
     document.getElementById('exportComparison')?.addEventListener('click', function() {
         exportComparison();
     });
 
-    // Clear All Comparison
-    document.getElementById('clearComparison')?.addEventListener('click', async function() {
+    // Clear All Comparison (FRONTEND ONLY)
+    document.getElementById('clearComparison')?.addEventListener('click', function() {
         if (confirm('Are you sure you want to clear all cranes from comparison?')) {
-            try {
-                const response = await fetch('/compare/clear', {
-                    method: 'POST'
-                });
-                
-                if (response.ok) {
-                    showFlashMessage('Comparison cleared', 'info');
-                    
-                    // Clear UI
-                    const columns = document.querySelectorAll('.comparison-column:not(.add-column)');
-                    columns.forEach(column => {
-                        column.style.animation = 'slideIn 0.3s ease reverse forwards';
-                        setTimeout(() => column.remove(), 300);
-                    });
-                    
-                    updateComparisonUI();
-                }
-            } catch (error) {
-                console.error('Error clearing comparison:', error);
-                showFlashMessage('Error clearing comparison', 'error');
+            // Clear card columns
+            const columns = document.querySelectorAll('.comparison-column:not(.add-column)');
+            columns.forEach(column => {
+                column.style.animation = 'slideIn 0.3s ease reverse forwards';
+                setTimeout(() => column.remove(), 300);
+            });
+
+            // Remove actual comparison table
+            const actualTable = document.getElementById('actualComparisonTable');
+            if (actualTable) {
+                actualTable.remove();
             }
+
+            updateComparisonUI();
+            showFlashMessage('Comparison cleared', 'info');
         }
     });
 
@@ -446,7 +410,7 @@ function initComparisonTable() {
         const columns = document.querySelectorAll('.comparison-column:not(.add-column)');
         const count = columns.length;
         
-        // Update count
+        // Update count badge
         if (comparisonCount) {
             comparisonCount.textContent = `(${count}/5)`;
         }
@@ -470,7 +434,7 @@ function initComparisonTable() {
             }
         }
         
-        // Enable/disable actions
+        // Enable/disable export
         const exportBtn = document.getElementById('exportComparison');
         if (exportBtn) {
             exportBtn.disabled = count < 2;
@@ -491,21 +455,18 @@ function initComparisonTable() {
         return column;
     }
 
-    // Add Crane to Comparison Table
+    // Add Crane to Card Layout Comparison Table
     function addCraneToComparison(crane) {
         const comparisonTable = document.getElementById('comparisonTable');
         const emptyComparison = document.getElementById('emptyComparison');
         
-        // Hide empty state if visible
         if (emptyComparison) {
             emptyComparison.style.display = 'none';
         }
         
-        // Show table if hidden
         if (comparisonTable) {
             comparisonTable.style.display = 'flex';
             
-            // Create new column
             const column = document.createElement('div');
             column.className = 'comparison-column';
             column.dataset.craneId = crane._id;
@@ -588,7 +549,6 @@ function initComparisonTable() {
                 </div>
             `;
             
-            // Insert before add column or at the end
             const addColumn = document.querySelector('.add-column');
             if (addColumn) {
                 comparisonTable.insertBefore(column, addColumn);
@@ -596,8 +556,6 @@ function initComparisonTable() {
                 comparisonTable.appendChild(column);
             }
             
-            // Show actions
-            const comparisonActions = document.getElementById('comparisonActions');
             if (comparisonActions) {
                 comparisonActions.style.display = 'flex';
             }
@@ -607,9 +565,23 @@ function initComparisonTable() {
     }
 
     // ========================================================================
-    // SECOND COMPARISON TABLE (Actual table layout)
+    // SECOND COMPARISON TABLE (Actual table layout, PURE FRONTEND)
     // ========================================================================
     window.addCraneToComparisonTable = function(crane) {
+        // Ensure container exists (if you don't have #compare in EJS)
+        let container = document.getElementById('compare');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'compare';
+            container.style.marginTop = '2rem';
+            const comparisonSection = document.getElementById('comparison-section');
+            if (comparisonSection) {
+                comparisonSection.appendChild(container);
+            } else {
+                document.body.appendChild(container);
+            }
+        }
+
         let table = document.getElementById('actualComparisonTable');
         if (!table) {
             table = document.createElement('table');
@@ -633,49 +605,51 @@ function initComparisonTable() {
                     <tr id="arRow"><td>AR Model</td></tr>
                 </tbody>
             `;
-            document.querySelector('#compare').appendChild(table);
+            container.appendChild(table);
         }
 
-        // Add column header
+        // Add header cell
         const headerRow = document.getElementById('headerRow');
         const th = document.createElement('th');
         th.textContent = crane.model || "Unknown Model";
+        th.dataset.craneId = crane._id;
         headerRow.appendChild(th);
 
-        // Add each feature
-        appendCell('typeRow', crane.type);
-        appendCell('manufacturerRow', crane.manufacturer);
-        appendCell('modelRow', crane.model);
-        appendCell('capacityRow', crane.max_load_capacity);
-        appendCell('boomRow', crane.boom_length);
-        appendCell('priceRow', crane.price_range || 'N/A');
-        appendCell('applicationsRow', crane.applications || 'N/A');
+        // Add each feature cell
+        appendCell('typeRow', crane.type, crane._id);
+        appendCell('manufacturerRow', crane.manufacturer, crane._id);
+        appendCell('modelRow', crane.model, crane._id);
+        appendCell('capacityRow', crane.max_load_capacity, crane._id);
+        appendCell('boomRow', crane.boom_length, crane._id);
+        appendCell('priceRow', crane.price_range || 'N/A', crane._id);
+        appendCell('applicationsRow', crane.applications || 'N/A', crane._id);
 
         // Image cell
         const imgCell = document.createElement('td');
-        imgCell.innerHTML = `<img src="${crane.image}" class="actual-table-img" />`;
+        imgCell.dataset.craneId = crane._id;
+        imgCell.innerHTML = `<img src="${crane.image || '/images/default-crane.jpg'}" class="actual-table-img" />`;
         document.getElementById('imageRow').appendChild(imgCell);
 
-        // AR Model
+        // AR Model cell
         const arCell = document.createElement('td');
+        arCell.dataset.craneId = crane._id;
         arCell.innerHTML = crane.ar_link 
             ? `<a href="${crane.ar_link}" target="_blank">View AR</a>`
             : 'N/A';
         document.getElementById('arRow').appendChild(arCell);
 
-
-        function appendCell(rowId, value) {
+        function appendCell(rowId, value, craneId) {
             const td = document.createElement('td');
             td.textContent = value || 'N/A';
+            td.dataset.craneId = craneId;
             document.getElementById(rowId).appendChild(td);
         }
     };
 
-
-    // 🔹 Make addCraneToComparison globally accessible
+    // Make card comparison function global
     window.addCraneToComparison = addCraneToComparison;
 
-    // Initialize if there are existing cranes
+    // Initialize UI state if any pre-rendered cranes exist
     updateComparisonUI();
 }
 
@@ -702,14 +676,12 @@ function initLoadAnalysis() {
             return;
         }
         
-        // Show loading state
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
         submitBtn.disabled = true;
         
         try {
-            // Send analysis request
             const response = await fetch('/load-analysis', {
                 method: 'POST',
                 headers: {
@@ -721,13 +693,9 @@ function initLoadAnalysis() {
             const result = await response.json();
             
             if (response.ok) {
-                // Display results
                 displayAnalysisResults(result);
-                
-                // Update diagram
                 updateLoadDiagram(data, result);
                 
-                // Show warnings if any
                 if (result.warnings && result.warnings.length > 0) {
                     displayWarnings(result.warnings);
                 } else {
@@ -855,10 +823,10 @@ function initLoadAnalysis() {
         
         resultsContent.innerHTML = resultsHTML;
         
-        // Update status
-        document.getElementById('resultsStatus').textContent = 'Analysis Complete';
-        document.getElementById('resultsStatus').style.background = '#2ECC71';
-        document.getElementById('resultsStatus').style.color = 'white';
+        const status = document.getElementById('resultsStatus');
+        status.textContent = 'Analysis Complete';
+        status.style.background = '#2ECC71';
+        status.style.color = 'white';
     }
 
     // Display Warnings
@@ -880,19 +848,16 @@ function initLoadAnalysis() {
         
         if (!craneDiagram) return;
         
-        // Calculate visual proportions
         const boomAngle = Math.asin(inputs.workingRadius / inputs.boomLength) * (180 / Math.PI);
         const boomLengthPercent = Math.min(parseFloat(inputs.boomLength) / 100, 0.8);
         const loadWeightPercent = Math.min(parseFloat(inputs.loadWeight) / 50, 0.3);
         
-        // Update boom
         const boom = craneDiagram.querySelector('.boom-diagram');
         if (boom) {
             boom.style.transform = `rotate(${boomAngle}deg)`;
             boom.style.width = `${boomLengthPercent * 100}%`;
         }
         
-        // Update load
         const load = craneDiagram.querySelector('.load-diagram');
         if (load) {
             load.style.left = `${70 + (boomAngle / 90) * 10}%`;
@@ -901,7 +866,6 @@ function initLoadAnalysis() {
                                    inputs.windCondition === 'strong' ? '#FFA726' : '#4CAF50';
         }
         
-        // Update counterweight
         const counterweight = craneDiagram.querySelector('.counterweight-diagram');
         if (counterweight && results.counterweight) {
             const counterweightPercent = Math.min(parseFloat(results.counterweight.value) / 100, 0.4);
@@ -957,11 +921,11 @@ function initLoadAnalysis() {
             </div>
         `;
         
-        document.getElementById('resultsStatus').textContent = 'Enter parameters and click "Calculate"';
-        document.getElementById('resultsStatus').style.background = '';
-        document.getElementById('resultsStatus').style.color = '';
+        const status = document.getElementById('resultsStatus');
+        status.textContent = 'Enter parameters and click "Calculate"';
+        status.style.background = '';
+        status.style.color = '';
         
-        // Reset diagram
         const boom = loadDiagram.querySelector('.boom-diagram');
         const load = loadDiagram.querySelector('.load-diagram');
         const counterweight = loadDiagram.querySelector('.counterweight-diagram');
@@ -976,34 +940,50 @@ function initLoadAnalysis() {
 }
 
 /**
- * Setup Event Listeners
+ * Setup Event Listeners (recent cranes, favorites)
  */
 function setupEventListeners() {
-    // Add to comparison from recent cranes
+    // Add to comparison from "Popular & Recent" cards (FRONTEND, using /cranes/:id READ ONLY)
     document.addEventListener('click', async function(e) {
         if (e.target.closest('.add-to-comparison-btn')) {
             const btn = e.target.closest('.add-to-comparison-btn');
             const craneId = btn.dataset.craneId;
-            
+
             try {
-                const response = await fetch('/compare/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ craneId })
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    showFlashMessage('Crane added to comparison', 'success');
-                    
-                    // Add to comparison table
-                    const comparisonTable = document.getElementById('comparisonTable');
-                    if (comparisonTable && typeof window.addCraneToComparison === 'function') {
-                        window.addCraneToComparison(result.crane);
-                    }
+                // Prevent duplicates
+                const existingCrane = document.querySelector(`[data-crane-id="${craneId}"]`);
+                if (existingCrane) {
+                    showFlashMessage('This crane is already in comparison', 'warning');
+                    return;
                 }
+
+                // Limit check
+                const comparisonCount = document.querySelectorAll('.comparison-column:not(.add-column)').length;
+                if (comparisonCount >= 5) {
+                    showFlashMessage('Maximum 5 cranes allowed in comparison', 'error');
+                    return;
+                }
+
+                const response = await fetch(`/cranes/${craneId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                const crane = data.crane;
+
+                if (!crane) {
+                    showFlashMessage('Crane not found', 'error');
+                    return;
+                }
+
+                if (typeof window.addCraneToComparison === 'function') {
+                    window.addCraneToComparison(crane);
+                }
+                if (typeof window.addCraneToComparisonTable === 'function') {
+                    window.addCraneToComparisonTable(crane);
+                }
+
+                showFlashMessage('Crane added to comparison', 'success');
             } catch (error) {
                 console.error('Error adding crane:', error);
                 showFlashMessage('Error adding crane to comparison', 'error');
@@ -1011,7 +991,7 @@ function setupEventListeners() {
         }
     });
 
-    // Favorite button
+    // Favorite button (still backend)
     document.addEventListener('click', async function(e) {
         if (e.target.closest('.favorite-btn')) {
             const btn = e.target.closest('.favorite-btn');
@@ -1047,7 +1027,6 @@ function setupEventListeners() {
  * Helper Functions
  */
 function showFlashMessage(message, type = 'info') {
-    // Create flash message element
     const flashDiv = document.createElement('div');
     flashDiv.className = `flash-message flash-${type}`;
     flashDiv.innerHTML = `
@@ -1055,16 +1034,13 @@ function showFlashMessage(message, type = 'info') {
         <button class="flash-close">&times;</button>
     `;
     
-    // Add to page
     const container = document.querySelector('.flash-messages') || document.body;
     container.appendChild(flashDiv);
     
-    // Auto-remove after 5 seconds
     setTimeout(() => {
         flashDiv.remove();
     }, 5000);
     
-    // Add click to close
     const closeBtn = flashDiv.querySelector('.flash-close');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => flashDiv.remove());

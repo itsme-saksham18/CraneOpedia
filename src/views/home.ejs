@@ -158,114 +158,23 @@ const currentPage = 'home';
 
             <!-- Comparison Table Container -->
             <div class="comparison-container" id="comparisonContainer">
-                <% if (comparisonData && comparisonData.length > 0) { %>
-                    <div class="comparison-table" id="comparisonTable">
-                        <% comparisonData.forEach((crane, index) => { %>
-                            <div class="comparison-column" data-crane-id="<%= crane._id %>">
-                                <div class="column-header">
-                                    <button class="remove-btn" data-crane-id="<%= crane._id %>">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                    <div class="crane-image">
-                                        <% if (crane.image) { %>
-                                            <img src="<%= crane.image %>" alt="<%= crane.model %>">
-                                        <% } %>
-                                        <span class="crane-type-badge"><%= crane.type %></span>
-                                    </div>
-                                    <h4 class="crane-model"><%= crane.model %></h4>
-                                    <p class="crane-manufacturer">
-                                        <i class="fas fa-industry"></i>
-                                        <%= crane.manufacturer %>
-                                    </p>
-                                </div>
-                                
-                                <div class="column-specs">
-                                    <div class="spec-row">
-                                        <span class="spec-label">Max Load Capacity</span>
-                                        <span class="spec-value">
-                                            <i class="fas fa-weight-hanging"></i>
-                                            <%= crane.max_load_capacity %>
-                                        </span>
-                                    </div>
-                                    <div class="spec-row">
-                                        <span class="spec-label">Boom Length</span>
-                                        <span class="spec-value">
-                                            <i class="fas fa-ruler-vertical"></i>
-                                            <%= crane.boom_length %>
-                                        </span>
-                                    </div>
-                                    <% if (crane.specs && crane.specs.reach_m) { %>
-                                    <div class="spec-row">
-                                        <span class="spec-label">Reach</span>
-                                        <span class="spec-value">
-                                            <i class="fas fa-arrows-alt-h"></i>
-                                            <%= crane.specs.reach_m %> m
-                                        </span>
-                                    </div>
-                                    <% } %>
-                                    <% if (crane.specs && crane.specs.max_height_m) { %>
-                                    <div class="spec-row">
-                                        <span class="spec-label">Max Height</span>
-                                        <span class="spec-value">
-                                            <i class="fas fa-arrow-up"></i>
-                                            <%= crane.specs.max_height_m %> m
-                                        </span>
-                                    </div>
-                                    <% } %>
-                                    <% if (crane.specs && crane.specs.weight_t) { %>
-                                    <div class="spec-row">
-                                        <span class="spec-label">Weight</span>
-                                        <span class="spec-value">
-                                            <i class="fas fa-weight"></i>
-                                            <%= crane.specs.weight_t %> t
-                                        </span>
-                                    </div>
-                                    <% } %>
-                                </div>
-                                
-                                <div class="column-actions">
-                                    <% if (crane.ar_link) { %>
-                                        <button class="btn btn-sm btn-outline ar-btn" data-ar-model="<%= crane.ar_link %>">
-                                            <i class="fas fa-vr-cardboard"></i>
-                                            View in AR
-                                        </button>
-                                    <% } %>
-                                    <button class="btn btn-sm btn-primary contact-btn" data-crane-id="<%= crane._id %>">
-                                        <i class="fas fa-envelope"></i>
-                                        Contact Owner
-                                    </button>
-                                    <a href="/cranes/<%= crane._id %>" class="btn btn-sm btn-secondary">
-                                        <i class="fas fa-info-circle"></i>
-                                        Details
-                                    </a>
-                                </div>
-                            </div>
-                        <% }); %>
-                        
-                        <% if (comparisonData.length < 5) { %>
-                            <div class="comparison-column add-column" id="addColumn">
-                                <div class="add-column-content">
-                                    <i class="fas fa-plus-circle"></i>
-                                    <span>Add Crane</span>
-                                    <small>Click or drag here</small>
-                                </div>
-                            </div>
-                        <% } %>
+
+                <!-- CARD COMPARISON TABLE (always render empty container) -->
+                <div class="comparison-table" id="comparisonTable" style="display:none"></div>
+
+                <!-- EMPTY STATE -->
+                <div class="empty-comparison" id="emptyComparison">
+                    <div class="empty-state">
+                        <i class="fas fa-balance-scale"></i>
+                        <h4>No Cranes Selected</h4>
+                        <p>Add cranes to compare their specifications side-by-side</p>
+                        <button class="btn btn-primary" id="startComparison">
+                            <i class="fas fa-plus"></i>
+                            Start Comparing
+                        </button>
                     </div>
-                <% } else { %>
-                    <!-- Empty State -->
-                    <div class="empty-comparison" id="emptyComparison">
-                        <div class="empty-state">
-                            <i class="fas fa-balance-scale"></i>
-                            <h4>No Cranes Selected</h4>
-                            <p>Add cranes to compare their specifications side-by-side</p>
-                            <button class="btn btn-primary" id="startComparison">
-                                <i class="fas fa-plus"></i>
-                                Start Comparing
-                            </button>
-                        </div>
-                    </div>
-                <% } %>
+                </div>
+
             </div>
 
             <!-- SECOND COMPARISON TABLE (Actual Table) -->

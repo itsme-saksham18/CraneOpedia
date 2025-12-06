@@ -1066,13 +1066,14 @@
    SECOND COMPARISON TABLE — THEME SAFE
    =============================================== */
 .actual-compare-table {
-    width: 100%;
-    margin-top: 40px;
+    width: 90%;
+    margin: 40px auto 0 auto;
     border-collapse: collapse;
     background: var(--soft-white); /* auto-adjusts in dark mode */
     border: 2px solid var(--crane-yellow);
     font-size: 1rem;
     color: var(--deep-black); /* dynamic text */
+    
 }
 
 .actual-compare-table th,
