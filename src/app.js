@@ -9,17 +9,30 @@ const path = require("path");
 require("dotenv").config();
 const passportConfig = require("./config/passport");
 const cors = require("cors");
+const expressLayouts = require('express-ejs-layouts');
+
+
+
 
 
 const app = express();
 
 // Middlewares
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(expressLayouts);
+app.set("layout", "layouts/main");
+app.set("layout extractScripts", true);
+app.set("layout extractStyles", true);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
+
+
+
 
 // Session
 app.use(
@@ -44,6 +57,15 @@ app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
+});
+// Custom Middleware to set locals
+app.use((req, res, next) => {
+    res.locals.user = req.user || null;
+    res.locals.favorites = req.session.favorites || [];
+    res.locals.comparison = req.session.comparison || [];
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
 });
 
 

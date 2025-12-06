@@ -11,9 +11,11 @@ router.get("/types", homeController.getTypes);
 router.get("/manufacturers/:type", homeController.getManufacturers);
 router.get("/models/:type/:manufacturer", homeController.getModels);
 
+router.get("/compare", homeController.getComparison);
+router.post("/compare/add", homeController.addToComparisonFromBody);
 router.post("/compare/add/:id", homeController.addToComparison);
 router.post("/compare/remove/:id", homeController.removeFromComparison);
-router.get("/compare", homeController.getComparison);
+
 
 router.post("/load-analysis", homeController.calculateLoadAnalysis);
 

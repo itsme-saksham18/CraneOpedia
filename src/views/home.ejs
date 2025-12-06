@@ -1,0 +1,616 @@
+<%
+const pageTitle = 'CraneOpedia - Home';
+const currentPage = 'home';
+%>
+
+<!-- Main Content -->
+<main class="home-container">
+    <!-- Hero Banner -->
+    <section class="hero-banner glass-effect" data-animate="fade-up">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">Industrial Crane</span>
+                <span class="hero-subtitle">Encyclopedia & Analysis Tool</span>
+            </h1>
+            <p class="hero-description">
+                Comprehensive database, AI-powered analysis, and comparison tools 
+                for construction professionals worldwide.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number" data-count="<%= craneCount %>">0</span>
+                    <span class="stat-label">Crane Models</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-count="<%= manufacturerCount %>">0</span>
+                    <span class="stat-label">Manufacturers</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="crane-3d-preview">
+                <!-- 3D Crane Visualization Placeholder -->
+                <div class="crane-model-3d">
+                    <div class="crane-base"></div>
+                    <div class="crane-tower"></div>
+                    <div class="crane-boom"></div>
+                    <div class="crane-hook"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search & Comparison Section -->
+    <section class="search-comparison-section" id="search-section">
+        <div class="section-header" data-animate="fade-up">
+            <h2 class="section-title">
+                <i class="fas fa-search"></i>
+                Find & Compare Cranes
+            </h2>
+            <p class="section-subtitle">
+                Select cranes to compare specifications side-by-side
+            </p>
+        </div>
+
+        <!-- Search Form -->
+        <div class="search-card card" data-animate="fade-up" data-delay="100">
+            <form id="craneSearchForm" class="search-form">
+                <div class="form-grid">
+                    <!-- Type Selection -->
+                    <div class="form-group">
+                        <label for="craneType" class="form-label">
+                            <i class="fas fa-cog"></i>
+                            Crane Type
+                        </label>
+                        <select id="craneType" name="type" class="form-select" required>
+                            <option value="">Select Type</option>
+                            <% if (types && types.length > 0) { %>
+                                <% types.forEach(type => { %>
+                                    <option value="<%= type %>">
+                                        <%= type %>
+                                    </option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                        <div class="form-hint">Start by selecting crane type</div>
+                    </div>
+
+                    <!-- Manufacturer Selection -->
+                    <div class="form-group">
+                        <label for="craneManufacturer" class="form-label">
+                            <i class="fas fa-industry"></i>
+                            Manufacturer
+                        </label>
+                        <select id="craneManufacturer" name="manufacturer" class="form-select" disabled>
+                            <option value="">Select Manufacturer</option>
+                            <!-- Dynamic via AJAX -->
+                        </select>
+                        <div class="form-hint">
+                            <span id="manufacturerStatus">Select type first</span>
+                        </div>
+                        <div class="loader-container" id="manufacturerLoader">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+
+                    <!-- Model Selection -->
+                    <div class="form-group">
+                        <label for="craneModel" class="form-label">
+                            <i class="fas fa-cube"></i>
+                            Model
+                        </label>
+                        <select id="craneModel" name="model" class="form-select" disabled>
+                            <option value="">Select Model</option>
+                            <!-- Dynamic via AJAX -->
+                        </select>
+                        <div class="form-hint">
+                            <span id="modelStatus">Select manufacturer first</span>
+                        </div>
+                        <div class="loader-container" id="modelLoader">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Crane Preview -->
+                <div class="selected-preview" id="selectedPreview" style="display: none;">
+                    <div class="preview-content">
+                        <img id="selectedImage" src="" alt="Selected Crane" class="preview-image">
+                        <div class="preview-info">
+                            <h4 id="selectedModel" class="preview-model"></h4>
+                            <p id="selectedSpecs" class="preview-specs"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions">
+                    <button type="button" id="addToComparison" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i>
+                        Add to Comparison
+                    </button>
+                    <button type="button" id="clearSelection" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Clear Selection
+                    </button>
+                    <a href="/cranes" class="btn btn-outline">
+                        <i class="fas fa-list"></i>
+                        Browse All Cranes
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="comparison-section" id="comparison-section">
+            <div class="section-header">
+                <h3 class="comparison-title">
+                    <i class="fas fa-balance-scale"></i>
+                    Comparison Table
+                    <span class="comparison-count" id="comparisonCount">
+                        (<% if (comparisonData && comparisonData.length > 0) { %><%= comparisonData.length %><% } else { %>0<% } %>/5)
+                    </span>
+                </h3>
+                <p class="comparison-subtitle">
+                    Compare up to 5 cranes side-by-side
+                </p>
+            </div>
+
+            <!-- Comparison Table Container -->
+            <div class="comparison-container" id="comparisonContainer">
+                <% if (comparisonData && comparisonData.length > 0) { %>
+                    <div class="comparison-table" id="comparisonTable">
+                        <% comparisonData.forEach((crane, index) => { %>
+                            <div class="comparison-column" data-crane-id="<%= crane._id %>">
+                                <div class="column-header">
+                                    <button class="remove-btn" data-crane-id="<%= crane._id %>">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <div class="crane-image">
+                                        <% if (crane.image) { %>
+                                            <img src="<%= crane.image %>" alt="<%= crane.model %>">
+                                        <% } %>
+                                        <span class="crane-type-badge"><%= crane.type %></span>
+                                    </div>
+                                    <h4 class="crane-model"><%= crane.model %></h4>
+                                    <p class="crane-manufacturer">
+                                        <i class="fas fa-industry"></i>
+                                        <%= crane.manufacturer %>
+                                    </p>
+                                </div>
+                                
+                                <div class="column-specs">
+                                    <div class="spec-row">
+                                        <span class="spec-label">Max Load Capacity</span>
+                                        <span class="spec-value">
+                                            <i class="fas fa-weight-hanging"></i>
+                                            <%= crane.max_load_capacity %>
+                                        </span>
+                                    </div>
+                                    <div class="spec-row">
+                                        <span class="spec-label">Boom Length</span>
+                                        <span class="spec-value">
+                                            <i class="fas fa-ruler-vertical"></i>
+                                            <%= crane.boom_length %>
+                                        </span>
+                                    </div>
+                                    <% if (crane.specs && crane.specs.reach_m) { %>
+                                    <div class="spec-row">
+                                        <span class="spec-label">Reach</span>
+                                        <span class="spec-value">
+                                            <i class="fas fa-arrows-alt-h"></i>
+                                            <%= crane.specs.reach_m %> m
+                                        </span>
+                                    </div>
+                                    <% } %>
+                                    <% if (crane.specs && crane.specs.max_height_m) { %>
+                                    <div class="spec-row">
+                                        <span class="spec-label">Max Height</span>
+                                        <span class="spec-value">
+                                            <i class="fas fa-arrow-up"></i>
+                                            <%= crane.specs.max_height_m %> m
+                                        </span>
+                                    </div>
+                                    <% } %>
+                                    <% if (crane.specs && crane.specs.weight_t) { %>
+                                    <div class="spec-row">
+                                        <span class="spec-label">Weight</span>
+                                        <span class="spec-value">
+                                            <i class="fas fa-weight"></i>
+                                            <%= crane.specs.weight_t %> t
+                                        </span>
+                                    </div>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="column-actions">
+                                    <% if (crane.ar_link) { %>
+                                        <button class="btn btn-sm btn-outline ar-btn" data-ar-model="<%= crane.ar_link %>">
+                                            <i class="fas fa-vr-cardboard"></i>
+                                            View in AR
+                                        </button>
+                                    <% } %>
+                                    <button class="btn btn-sm btn-primary contact-btn" data-crane-id="<%= crane._id %>">
+                                        <i class="fas fa-envelope"></i>
+                                        Contact Owner
+                                    </button>
+                                    <a href="/cranes/<%= crane._id %>" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-info-circle"></i>
+                                        Details
+                                    </a>
+                                </div>
+                            </div>
+                        <% }); %>
+                        
+                        <% if (comparisonData.length < 5) { %>
+                            <div class="comparison-column add-column" id="addColumn">
+                                <div class="add-column-content">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>Add Crane</span>
+                                    <small>Click or drag here</small>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <!-- Empty State -->
+                    <div class="empty-comparison" id="emptyComparison">
+                        <div class="empty-state">
+                            <i class="fas fa-balance-scale"></i>
+                            <h4>No Cranes Selected</h4>
+                            <p>Add cranes to compare their specifications side-by-side</p>
+                            <button class="btn btn-primary" id="startComparison">
+                                <i class="fas fa-plus"></i>
+                                Start Comparing
+                            </button>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- SECOND COMPARISON TABLE (Actual Table) -->
+            <section id="actualComparisonSection">
+                <h3 class="comparison-title">
+                    <i class="fas fa-table"></i>
+                    Detailed Comparison Table
+                </h3>
+                <div id="compare"></div>
+            </section>
+
+
+            <!-- Comparison Actions -->
+            <div class="comparison-actions" id="comparisonActions" 
+                 class="<% if (!comparisonData || comparisonData.length < 2) { %>hidden<% } %>">
+                <button class="btn btn-primary" id="exportComparison">
+                    <i class="fas fa-download"></i>
+                    Export Comparison
+                </button>
+                <button class="btn btn-secondary" id="clearComparison">
+                    <i class="fas fa-trash"></i>
+                    Clear All
+                </button>
+                <button class="btn btn-outline" id="saveComparison">
+                    <i class="fas fa-save"></i>
+                    Save Comparison
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Load Analysis Section -->
+    <section class="load-analysis-section" id="load-analysis-section">
+        <div class="section-header" data-animate="fade-up">
+            <h2 class="section-title">
+                <i class="fas fa-calculator"></i>
+                Load Distribution Analysis
+            </h2>
+            <p class="section-subtitle">
+                Calculate stability and requirements for safe crane operations
+            </p>
+        </div>
+
+        <div class="analysis-container">
+            <!-- Input Form -->
+            <div class="analysis-form card" data-animate="fade-up" data-delay="100">
+                <form id="loadAnalysisForm">
+                    <div class="form-grid-two">
+                        <div class="form-group">
+                            <label for="loadWeight" class="form-label">
+                                <i class="fas fa-weight-hanging"></i>
+                                Load Weight
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" 
+                                       id="loadWeight" 
+                                       name="loadWeight" 
+                                       class="form-input"
+                                       min="1" 
+                                       max="1000"
+                                       step="0.1"
+                                       required>
+                                <span class="input-unit">tons</span>
+                            </div>
+                            <div class="form-hint">Weight of the load to be lifted</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="boomLength" class="form-label">
+                                <i class="fas fa-ruler-vertical"></i>
+                                Boom Length
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" 
+                                       id="boomLength" 
+                                       name="boomLength" 
+                                       class="form-input"
+                                       min="10" 
+                                       max="200"
+                                       step="0.5"
+                                       required>
+                                <span class="input-unit">meters</span>
+                            </div>
+                            <div class="form-hint">Extended length of crane boom</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="workingRadius" class="form-label">
+                                <i class="fas fa-arrows-alt-h"></i>
+                                Working Radius
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" 
+                                       id="workingRadius" 
+                                       name="workingRadius" 
+                                       class="form-input"
+                                       min="1" 
+                                       max="150"
+                                       step="0.5"
+                                       required>
+                                <span class="input-unit">meters</span>
+                            </div>
+                            <div class="form-hint">Horizontal distance from crane center</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="terrainType" class="form-label">
+                                <i class="fas fa-mountain"></i>
+                                Terrain Type
+                            </label>
+                            <select id="terrainType" name="terrainType" class="form-select" required>
+                                <option value="">Select Terrain</option>
+                                <option value="concrete">Concrete/Asphalt</option>
+                                <option value="compact_soil">Compact Soil</option>
+                                <option value="loose_soil">Loose Soil</option>
+                                <option value="gravel">Gravel</option>
+                                <option value="sand">Sand</option>
+                                <option value="unstable">Unstable Ground</option>
+                            </select>
+                            <div class="form-hint">Ground condition at worksite</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="windCondition" class="form-label">
+                                <i class="fas fa-wind"></i>
+                                Wind Condition
+                            </label>
+                            <select id="windCondition" name="windCondition" class="form-select" required>
+                                <option value="">Select Wind Condition</option>
+                                <option value="calm">Calm (0-20 km/h)</option>
+                                <option value="moderate">Moderate (21-40 km/h)</option>
+                                <option value="strong">Strong (41-60 km/h)</option>
+                                <option value="severe">Severe (61+ km/h)</option>
+                            </select>
+                            <div class="form-hint">Current wind speed at worksite</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="craneModelSelect" class="form-label">
+                                <i class="fas fa-crane"></i>
+                                Crane Model (Optional)
+                            </label>
+                            <select id="craneModelSelect" name="craneModel" class="form-select">
+                                <option value="">Select Crane (for precise analysis)</option>
+                                <!-- Will be populated from comparison or recent cranes -->
+                            </select>
+                            <div class="form-hint">Select a crane for model-specific analysis</div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i>
+                            Calculate Load Analysis
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i>
+                            Reset Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="analysis-results card" data-animate="fade-up" data-delay="200">
+                <div class="results-header">
+                    <h3 class="results-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Analysis Results
+                    </h3>
+                    <div class="results-status" id="resultsStatus">
+                        Enter parameters and click "Calculate"
+                    </div>
+                </div>
+
+                <div class="results-content" id="resultsContent">
+                    <!-- Dynamic results will be inserted here -->
+                    <div class="placeholder-results">
+                        <div class="result-item">
+                            <div class="result-icon">
+                                <i class="fas fa-balance-scale-right"></i>
+                            </div>
+                            <div class="result-info">
+                                <h4>Recommended Counterweight</h4>
+                                <div class="result-value">-- tons</div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-item">
+                            <div class="result-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="result-info">
+                                <h4>Ground Pressure</h4>
+                                <div class="result-value">-- kPa</div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-item">
+                            <div class="result-icon">
+                                <i class="fas fa-square"></i>
+                            </div>
+                            <div class="result-info">
+                                <h4>Minimum Pad Size</h4>
+                                <div class="result-value">-- m²</div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-item">
+                            <div class="result-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="result-info">
+                                <h4>Safety Factor</h4>
+                                <div class="result-value">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warning Messages -->
+                    <div class="warnings-container" id="warningsContainer" style="display: none;">
+                        <div class="warning-header">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h4>Important Warnings</h4>
+                        </div>
+                        <div class="warning-list" id="warningList">
+                            <!-- Warnings will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Diagram Placeholder -->
+                    <div class="diagram-container">
+                        <div class="diagram-header">
+                            <h4>Load Distribution Diagram</h4>
+                            <button class="btn btn-sm btn-outline" id="toggleDiagram">
+                                <i class="fas fa-expand"></i>
+                                Expand
+                            </button>
+                        </div>
+                        <div class="diagram-placeholder" id="loadDiagram">
+                            <div class="crane-diagram">
+                                <div class="crane-base-diagram"></div>
+                                <div class="boom-diagram"></div>
+                                <div class="load-diagram"></div>
+                                <div class="counterweight-diagram"></div>
+                            </div>
+                            <div class="diagram-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color load-color"></span>
+                                    <span>Load</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color boom-color"></span>
+                                    <span>Boom</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color counterweight-color"></span>
+                                    <span>Counterweight</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent & Popular Section -->
+    <section class="recent-section">
+        <div class="section-header" data-animate="fade-up">
+            <h2 class="section-title">
+                <i class="fas fa-bolt"></i>
+                Popular & Recent Cranes
+            </h2>
+            <p class="section-subtitle">
+                Most viewed and recently added crane models
+            </p>
+        </div>
+
+        <div class="crane-grid" id="recentCranesGrid">
+            <% if (recentCranes && recentCranes.length > 0) { %>
+                <% recentCranes.forEach(crane => { %>
+                    <div class="crane-card">
+                        <div class="crane-image">
+                            <% if (crane.image) { %>
+                                <img src="<%= crane.image %>" alt="<%= crane.model %>">
+                            <% } %>
+                            <span class="crane-type-badge"><%= crane.type %></span>
+                            <button class="favorite-btn" data-crane-id="<%= crane._id %>">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="crane-info">
+                            <h3 class="crane-model"><%= crane.model %></h3>
+                            <p class="crane-manufacturer">
+                                <i class="fas fa-industry"></i>
+                                <%= crane.manufacturer %>
+                            </p>
+                            <div class="crane-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-weight-hanging"></i>
+                                    <span><%= crane.max_load_capacity %></span>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-ruler-vertical"></i>
+                                    <span><%= crane.boom_length %></span>
+                                </div>
+                                <% if (crane.price_range) { %>
+                                <div class="spec-item">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span><%= crane.price_range %></span>
+                                </div>
+                                <% } %>
+                            </div>
+                            <div class="crane-actions">
+                                <a href="/cranes/<%= crane._id %>" class="btn btn-primary btn-sm">
+                                    View Details
+                                </a>
+                                <button class="btn btn-secondary btn-sm add-to-comparison-btn" 
+                                        data-crane-id="<%= crane._id %>">
+                                    Compare
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <!-- Skeleton Loading -->
+                <div class="skeleton-grid">
+                    <% for(let i = 0; i < 6; i++) { %>
+                        <div class="crane-card-skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton-line short"></div>
+                                <div class="skeleton-line medium"></div>
+                                <div class="skeleton-line long"></div>
+                                <div class="skeleton-buttons">
+                                    <div class="skeleton-button"></div>
+                                    <div class="skeleton-button"></div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </section>
+</main>

@@ -1,0 +1,93 @@
+<nav class="navbar" role="navigation" aria-label="Main Navigation">
+    <div class="nav-container">
+        <!-- Logo -->
+        <a href="/" class="nav-logo" aria-label="CraneOpedia Home">
+            <div class="logo-icon">
+                <svg class="crane-svg" viewBox="0 0 100 100" aria-hidden="true">
+                    <path d="M30,10 L70,10 L80,30 L20,30 Z" class="crane-top"/>
+                    <path d="M45,30 L55,30 L55,70 L45,70 Z" class="crane-tower"/>
+                    <path d="M40,70 L60,70 L65,90 L35,90 Z" class="crane-base"/>
+                    <path d="M10,50 L90,50" class="crane-arm"/>
+                    <circle cx="50" cy="50" r="5" class="crane-hook"/>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <span class="crane-word">Crane</span>
+                <span class="opedia-word">Opedia</span>
+            </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="nav-menu" id="navMenu">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/" class="nav-link <%= currentPage === 'home' ? 'active' : '' %>" 
+                       data-page="home">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/ai" class="nav-link <%= currentPage === 'ai' ? 'active' : '' %>" 
+                       data-page="ai">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Assistance</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/cranes" class="nav-link <%= currentPage === 'cranes' ? 'active' : '' %>" 
+                       data-page="cranes">
+                        <i class="fas fa-cogs"></i>
+                        <span>Cranes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/favorites" class="nav-link <%= currentPage === 'favorites' ? 'active' : '' %>" 
+                       data-page="favorites">
+                        <i class="fas fa-heart"></i>
+                        <span>Favorites</span>
+                    </a>
+                </li>
+                
+                <!-- Admin/Dashboard Conditional -->
+                <% if (user && user.isAdmin) { %>
+                    <li class="nav-item admin-item">
+                        <a href="/admin/dashboard" class="nav-link admin-link" data-page="admin">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/logout" class="nav-link logout-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item admin-item">
+                        <a href="/admin" class="nav-link admin-link" data-page="admin">
+                            <i class="fas fa-lock"></i>
+                            <span>ADMIN</span>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
+            <i class="fas fa-sun" aria-hidden="true"></i>
+            <i class="fas fa-moon" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+</nav>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'CraneOpedia - Heavy Machinery Encyclopedia' %></title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="/css/global.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/images/crane-icon.svg">
+
+    <!-- In main.ejs, add conditional loading -->
+<% if (currentPage === 'home') { %>
+    <link rel="stylesheet" href="/css/home.css">
+    <script src="/js/home.js" defer></script>
+<% } %>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#F9D400">
+    <meta name="description" content="Comprehensive encyclopedia of industrial cranes and heavy machinery">
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="crane-loader">
+            <div class="crane-arm"></div>
+            <div class="crane-hook"></div>
+        </div>
+    </div>
+
+    <!-- Page Wrapper -->
+    <div class="page-wrapper">
+        <!-- Navbar Partial -->
+        <%- include('../partials/navbar') %>
+
+        <!-- Flash Messages -->
+        <% if (success && success.length > 0) { %>
+            <div class="flash-messages">
+                <% success.forEach(function(message) { %>
+                    <div class="flash-message flash-success">
+                        <span><%= message %></span>
+                        <button class="flash-close">&times;</button>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+        
+        <% if (error && error.length > 0) { %>
+            <div class="flash-messages">
+                <% error.forEach(function(message) { %>
+                    <div class="flash-message flash-error">
+                        <span><%= message %></span>
+                        <button class="flash-close">&times;</button>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <%- body %>
+        </main>
+
+        <!-- Footer Partial -->
+        <%- include('../partials/footer') %>
+    </div>
+
+    <!-- Floating Compare Button (Only on Home) -->
+    <% if (currentPage === 'home') { %>
+        <button class="floating-compare-btn" id="compareBtn">
+            <i class="fas fa-balance-scale"></i>
+            <span>Compare Cranes</span>
+            <div class="pulse-ring"></div>
+        </button>
+    <% } %>
+
+    <!-- Global JavaScript -->
+    <script src="/js/global.js"></script>
+    
+    <!-- Initialize Theme -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('cranepedia-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        });
+    </script>
+</body>
+</html>
