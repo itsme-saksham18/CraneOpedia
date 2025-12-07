@@ -238,7 +238,7 @@ a {
     height: 48px;
 }
 
-.crane-svg {
+.logo-icon img, .crane-svg {
     width: 100%;
     height: 100%;
 }
@@ -256,6 +256,9 @@ a {
     stroke: var(--crane-yellow-dark);
 }
 
+.logo-icon img {
+    object-fit: contain;
+}
 .logo-text {
     display: flex;
     font-family: var(--font-heading);

@@ -78,7 +78,7 @@
 }
 
 .crane-3d-preview {
-    width: 100%;
+    width: 50%;
     height: 300px;
     position: relative;
 }
@@ -94,58 +94,15 @@
     overflow: hidden;
 }
 
-.crane-model-3d div {
-    position: absolute;
-    background: var(--crane-yellow);
-    border-radius: 2px;
+.crane-model-3d img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    position: relative;
+    z-index: 10; 
 }
 
-.crane-base {
-    width: 60%;
-    height: 20px;
-    bottom: 20%;
-    left: 20%;
-    background: linear-gradient(90deg, #333, #555);
-}
-
-.crane-tower {
-    width: 10px;
-    height: 60%;
-    bottom: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(to top, #666, #888);
-}
-
-.crane-boom {
-    width: 70%;
-    height: 6px;
-    top: 30%;
-    left: 15%;
-    background: linear-gradient(90deg, #444, #666);
-    transform-origin: left center;
-    animation: boomSwing 8s infinite alternate ease-in-out;
-}
-
-.crane-hook {
-    width: 8px;
-    height: 15px;
-    background: #333;
-    border-radius: 4px;
-    top: 30%;
-    left: 85%;
-    animation: hookSwing 4s infinite alternate ease-in-out;
-}
-
-@keyframes boomSwing {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(5deg); }
-}
-
-@keyframes hookSwing {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(20px); }
-}
 
 /* ===== SEARCH SECTION ===== */
 .search-comparison-section {
