@@ -1103,3 +1103,12 @@
     border-radius: 6px;
     border: 2px solid var(--crane-yellow);
 }
+
+@keyframes highlightFlash {
+    0%   { background-color: rgba(255, 215, 0, 0.3); }
+    100% { background-color: transparent; }
+}
+
+.highlight-comparison {
+    animation: highlightFlash 1s ease-out;
+}

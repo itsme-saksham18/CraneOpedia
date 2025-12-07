@@ -254,7 +254,7 @@ function initDropdowns() {
         console.log('Add to Comparison clicked');
 
         // Check if crane is already in comparison (card layout)
-        const existingCrane = document.querySelector(`[data-crane-id="${selectedCrane._id}"]`);
+        const existingCrane = document.querySelector(`.comparison-column[data-crane-id="${selectedCrane._id}"]`);
         if (existingCrane) {
             showFlashMessage('This crane is already in comparison', 'warning');
             return;
@@ -274,7 +274,6 @@ function initDropdowns() {
         if (typeof window.addCraneToComparisonTable === 'function') {
             window.addCraneToComparisonTable(selectedCrane);
         }
-
         showFlashMessage('Crane added to comparison', 'success');
         clearSelection();
     });
@@ -1053,7 +1052,8 @@ function setupEventListeners() {
 
             // Add to BOTH comparison tables — exactly once each
             if (typeof window.addCraneToComparison === 'function') {
-                window.addCraneToComparison(crane);  // CARD VIEW
+                window.addCraneToComparison(crane);
+                  // CARD VIEW
             } else {
                 console.warn('addCraneToComparison not defined');
             }
@@ -1065,9 +1065,7 @@ function setupEventListeners() {
             }
 
             // Smooth scroll to comparison section
-            document.getElementById("comparison-section")
-                    ?.scrollIntoView({ behavior: "smooth" });
-
+            scrollToComparison();
             showFlashMessage('Crane added to comparison', 'success');
 
         } catch (error) {
@@ -1191,3 +1189,17 @@ window.exportAsExcel = function() {
 window.exportAsCSV = function() {
     showFlashMessage('CSV export feature coming soon', 'info');
 };
+
+function scrollToComparison() {
+    const section = document.getElementById("comparison-section");
+    if (!section) return;
+
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    section.classList.add('highlight-comparison');
+
+    setTimeout(() => {
+        section.classList.remove('highlight-comparison');
+    }, 1200);
+}
+
