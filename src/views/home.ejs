@@ -280,6 +280,7 @@ const currentPage = 'home';
                             <div class="form-hint">Horizontal distance from crane center</div>
                         </div>
 
+                        <!-- Terrain Type -->
                         <div class="form-group">
                             <label for="terrainType" class="form-label">
                                 <i class="fas fa-mountain"></i>
@@ -287,16 +288,18 @@ const currentPage = 'home';
                             </label>
                             <select id="terrainType" name="terrainType" class="form-select" required>
                                 <option value="">Select Terrain</option>
-                                <option value="concrete">Concrete/Asphalt</option>
-                                <option value="compact_soil">Compact Soil</option>
-                                <option value="loose_soil">Loose Soil</option>
-                                <option value="gravel">Gravel</option>
-                                <option value="sand">Sand</option>
-                                <option value="unstable">Unstable Ground</option>
+                                <!-- Values match backend labels exactly -->
+                                <option value="Concrete/Asphalt">Concrete/Asphalt</option>
+                                <option value="Compact Soil">Compact Soil</option>
+                                <option value="Loose Soil">Loose Soil</option>
+                                <option value="Gravel">Gravel</option>
+                                <option value="Sand">Sand</option>
+                                <option value="Unstable Ground">Unstable Ground</option>
                             </select>
                             <div class="form-hint">Ground condition at worksite</div>
                         </div>
 
+                        <!-- Wind Condition -->
                         <div class="form-group">
                             <label for="windCondition" class="form-label">
                                 <i class="fas fa-wind"></i>
@@ -304,10 +307,11 @@ const currentPage = 'home';
                             </label>
                             <select id="windCondition" name="windCondition" class="form-select" required>
                                 <option value="">Select Wind Condition</option>
-                                <option value="calm">Calm (0-20 km/h)</option>
-                                <option value="moderate">Moderate (21-40 km/h)</option>
-                                <option value="strong">Strong (41-60 km/h)</option>
-                                <option value="severe">Severe (61+ km/h)</option>
+                                <!-- Values match backend labels exactly -->
+                                <option value="Calm (0-20 km/h)">Calm (0-20 km/h)</option>
+                                <option value="Moderate (21-40 km/h)">Moderate (21-40 km/h)</option>
+                                <option value="Strong (41-60 km/h)">Strong (41-60 km/h)</option>
+                                <option value="Severe (61+ km/h)">Severe (61+ km/h)</option>
                             </select>
                             <div class="form-hint">Current wind speed at worksite</div>
                         </div>

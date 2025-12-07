@@ -664,23 +664,50 @@ function initLoadAnalysis() {
     const loadDiagram = document.getElementById('loadDiagram');
     const toggleDiagramBtn = document.getElementById('toggleDiagram');
 
+    // Map short option values (if you accidentally used them) to backend labels.
+    function mapWindValue(val) {
+        if (!val) return '';
+        val = String(val).toLowerCase();
+        if (val.includes('calm') || val === 'calm') return 'Calm (0-20 km/h)';
+        if (val.includes('moderate') || val === 'moderate') return 'Moderate (21-40 km/h)';
+        if (val.includes('strong') || val === 'strong') return 'Strong (41-60 km/h)';
+        if (val.includes('severe') || val === 'severe') return 'Severe (61+ km/h)';
+        return val; // assume already backend label
+    }
+
+    function mapTerrainValue(val) {
+        if (!val) return '';
+        val = String(val).toLowerCase();
+        if (val.includes('concrete') || val === 'concrete' || val === 'concrete/asphalt') return 'Concrete/Asphalt';
+        if (val.includes('compact') || val === 'compact_soil') return 'Compact Soil';
+        if (val.includes('loose') || val === 'loose_soil') return 'Loose Soil';
+        if (val.includes('gravel')) return 'Gravel';
+        if (val.includes('sand')) return 'Sand';
+        if (val.includes('unstable')) return 'Unstable Ground';
+        return val; // assume already backend label
+    }
+
     // Form Submission
     analysisForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(this);
         const data = Object.fromEntries(formData);
-        
+
+        // Remap terrain & wind to backend-friendly labels (backwards compatible)
+        data.terrainType = mapTerrainValue(data.terrainType);
+        data.windCondition = mapWindValue(data.windCondition);
+
         // Validate inputs
         if (!validateAnalysisInputs(data)) {
             return;
         }
-        
+
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
         submitBtn.disabled = true;
-        
+
         try {
             const response = await fetch('/load-analysis', {
                 method: 'POST',
@@ -689,22 +716,24 @@ function initLoadAnalysis() {
                 },
                 body: JSON.stringify(data)
             });
-            
+
             const result = await response.json();
-            
+
             if (response.ok) {
                 displayAnalysisResults(result);
                 updateLoadDiagram(data, result);
-                
+
                 if (result.warnings && result.warnings.length > 0) {
                     displayWarnings(result.warnings);
                 } else {
                     warningsContainer.style.display = 'none';
                 }
-                
+
                 showFlashMessage('Analysis completed successfully', 'success');
             } else {
-                showFlashMessage(result.error || 'Analysis failed', 'error');
+                // If backend returns structured validation errors
+                const msg = result.error || (result.details ? result.details.join('<br>') : 'Analysis failed');
+                showFlashMessage(msg, 'error');
             }
         } catch (error) {
             console.error('Analysis error:', error);
@@ -719,7 +748,7 @@ function initLoadAnalysis() {
     analysisForm.addEventListener('reset', function() {
         resetAnalysisResults();
         warningsContainer.style.display = 'none';
-        loadDiagram.style.height = '200px';
+        if (loadDiagram) loadDiagram.style.height = '200px';
     });
 
     // Toggle Diagram
@@ -735,207 +764,236 @@ function initLoadAnalysis() {
         });
     }
 
-    // Validate Analysis Inputs
+    // Validate Analysis Inputs (unchanged but safe)
     function validateAnalysisInputs(data) {
         const errors = [];
-        
+
         if (!data.loadWeight || parseFloat(data.loadWeight) <= 0) {
             errors.push('Load weight must be greater than 0');
         }
-        
+
         if (!data.boomLength || parseFloat(data.boomLength) <= 0) {
             errors.push('Boom length must be greater than 0');
         }
-        
+
         if (!data.workingRadius || parseFloat(data.workingRadius) <= 0) {
             errors.push('Working radius must be greater than 0');
         }
-        
+
         if (parseFloat(data.workingRadius) > parseFloat(data.boomLength)) {
             errors.push('Working radius cannot exceed boom length');
         }
-        
+
         if (!data.terrainType) {
             errors.push('Please select terrain type');
         }
-        
+
         if (!data.windCondition) {
             errors.push('Please select wind condition');
         }
-        
+
         if (errors.length > 0) {
             showFlashMessage(errors.join('<br>'), 'error');
             return false;
         }
-        
+
         return true;
     }
 
-    // Display Analysis Results
-    function displayAnalysisResults(result) {
-        const resultsHTML = `
-            <div class="analysis-results-grid">
-                <div class="result-item ${result.counterweight?.status || ''}">
-                    <div class="result-icon">
-                        <i class="fas fa-balance-scale-right"></i>
-                    </div>
-                    <div class="result-info">
-                        <h4>Recommended Counterweight</h4>
-                        <div class="result-value">${result.counterweight?.value || '--'} tons</div>
-                        <div class="result-note">${result.counterweight?.note || ''}</div>
-                    </div>
-                </div>
-                
-                <div class="result-item ${result.groundPressure?.status || ''}">
-                    <div class="result-icon">
-                        <i class="fas fa-tachometer-alt"></i>
-                    </div>
-                    <div class="result-info">
-                        <h4>Ground Pressure</h4>
-                        <div class="result-value">${result.groundPressure?.value || '--'} kPa</div>
-                        <div class="result-note">${result.groundPressure?.note || ''}</div>
-                    </div>
-                </div>
-                
-                <div class="result-item ${result.padSize?.status || ''}">
-                    <div class="result-icon">
-                        <i class="fas fa-square"></i>
-                    </div>
-                    <div class="result-info">
-                        <h4>Minimum Pad Size</h4>
-                        <div class="result-value">${result.padSize?.value || '--'} m²</div>
-                        <div class="result-note">${result.padSize?.note || ''}</div>
-                    </div>
-                </div>
-                
-                <div class="result-item ${result.safetyFactor?.status || ''}">
-                    <div class="result-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="result-info">
-                        <h4>Safety Factor</h4>
-                        <div class="result-value">${result.safetyFactor?.value || '--'}</div>
-                        <div class="result-note">${result.safetyFactor?.note || ''}</div>
-                    </div>
+    // Display Analysis Results - tolerant to both shapes:
+    // - legacy: result.counterweight.value
+    // - expanded: result.counterweight.value_t or result.counterweight.value
+function displayAnalysisResults(result) {
+    // --- Counterweight (already matched earlier) ---
+    const cwVal = result.counterweight?.value ?? result.counterweight?.value_t ?? '--';
+    const cwNote = result.counterweight?.note ?? '';
+    const cwStatus = result.counterweight?.status ?? '';
+
+    // --- MAP BACKEND "ground" → UI groundPressure + padSize ---
+    const gpVal = result.ground?.outriggerPressure_kPa ?? '--';
+    const gpNote = `Soil capacity: ${result.ground?.soilCapacity_kPa ?? '--'} kPa`;
+    const gpStatus = gpVal > (result.ground?.soilCapacity_kPa ?? 9999) ? 'danger' : 'warning';
+
+    const padVal = result.ground?.requiredPadArea_m2 ?? '--';
+    const padNote = `Recommended pad area to stay within soil limits.`;
+    const padStatus = padVal > 10 ? 'warning' : '';
+
+    // --- MAP BACKEND "stability" → UI safetyFactor ---
+    const sfVal = result.stability?.computedSafetyFactor ?? '--';
+    const sfNote = `Overturning ratio: ${result.stability?.overturningRatio ?? '--'}`;
+    const sfStatus = sfVal < 1.2 ? 'danger' : (sfVal < 1.5 ? 'warning' : '');
+
+    // --- Render updated UI ---
+    const resultsHTML = `
+        <div class="analysis-results-grid">
+
+            <div class="result-item ${cwStatus}">
+                <div class="result-icon"><i class="fas fa-balance-scale-right"></i></div>
+                <div class="result-info">
+                    <h4>Recommended Counterweight</h4>
+                    <div class="result-value">${cwVal} tons</div>
+                    <div class="result-note">${cwNote}</div>
                 </div>
             </div>
-        `;
-        
-        resultsContent.innerHTML = resultsHTML;
-        
-        const status = document.getElementById('resultsStatus');
-        status.textContent = 'Analysis Complete';
-        status.style.background = '#2ECC71';
-        status.style.color = 'white';
-    }
 
-    // Display Warnings
+            <div class="result-item ${gpStatus}">
+                <div class="result-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <div class="result-info">
+                    <h4>Ground Pressure</h4>
+                    <div class="result-value">${gpVal} kPa</div>
+                    <div class="result-note">${gpNote}</div>
+                </div>
+            </div>
+
+            <div class="result-item ${padStatus}">
+                <div class="result-icon"><i class="fas fa-square"></i></div>
+                <div class="result-info">
+                    <h4>Minimum Pad Size</h4>
+                    <div class="result-value">${padVal} m²</div>
+                    <div class="result-note">${padNote}</div>
+                </div>
+            </div>
+
+            <div class="result-item ${sfStatus}">
+                <div class="result-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="result-info">
+                    <h4>Safety Factor</h4>
+                    <div class="result-value">${sfVal}</div>
+                    <div class="result-note">${sfNote}</div>
+                </div>
+            </div>
+
+        </div>
+    `;
+
+    resultsContent.innerHTML = resultsHTML;
+
+    const status = document.getElementById('resultsStatus');
+    status.textContent = 'Analysis Complete';
+    status.style.background = '#2ECC71';
+    status.style.color = 'white';
+}
+
+    // Display Warnings — handle both strings and objects [{code,severity,message}]
     function displayWarnings(warnings) {
         warningList.innerHTML = '';
-        
-        warnings.forEach(warning => {
-            const li = document.createElement('li');
-            li.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${warning}`;
+
+        warnings.forEach(w => {
+            let severity = 'warning';
+            let message = '';
+
+            if (typeof w === 'string') {
+                message = w;
+            } else if (typeof w === 'object' && w !== null) {
+                message = w.message || JSON.stringify(w);
+                severity = w.severity || (w.code && w.code.includes('danger') ? 'danger' : 'warning');
+            } else {
+                message = String(w);
+            }
+
+            const li = document.createElement('div');
+            li.className = `warning-item warning-${severity}`;
+            li.innerHTML = `
+                <div class="warning-badge ${severity}">${severity === 'danger' ? 'DANGER' : 'WARNING'}</div>
+                <div class="warning-text">${message}</div>
+            `;
             warningList.appendChild(li);
         });
-        
+
         warningsContainer.style.display = 'block';
     }
 
-    // Update Load Diagram
+    // Update Load Diagram — robust to different result shapes
     function updateLoadDiagram(inputs, results) {
+        if (!loadDiagram) return;
         const craneDiagram = loadDiagram.querySelector('.crane-diagram');
-        
         if (!craneDiagram) return;
-        
-        const boomAngle = Math.asin(inputs.workingRadius / inputs.boomLength) * (180 / Math.PI);
+
+        // Determine boom angle from result (preferred) or compute from inputs
+        let boomAngle = null;
+        if (results.diagram && results.diagram.boomAngle !== undefined) {
+            boomAngle = Number(results.diagram.boomAngle);
+        } else if (results.physics && results.physics.boomAngleDeg !== undefined) {
+            boomAngle = Number(results.physics.boomAngleDeg);
+        } else {
+            // safe compute: asin(radius/boom)
+            const r = Number(inputs.workingRadius);
+            const b = Number(inputs.boomLength);
+            if (b && r && r < b) {
+                boomAngle = Math.asin(r / b) * (180 / Math.PI);
+            } else {
+                boomAngle = 30;
+            }
+        }
+
         const boomLengthPercent = Math.min(parseFloat(inputs.boomLength) / 100, 0.8);
         const loadWeightPercent = Math.min(parseFloat(inputs.loadWeight) / 50, 0.3);
-        
+
         const boom = craneDiagram.querySelector('.boom-diagram');
         if (boom) {
             boom.style.transform = `rotate(${boomAngle}deg)`;
             boom.style.width = `${boomLengthPercent * 100}%`;
         }
-        
+
         const load = craneDiagram.querySelector('.load-diagram');
         if (load) {
             load.style.left = `${70 + (boomAngle / 90) * 10}%`;
             load.style.height = `${loadWeightPercent * 100}px`;
-            load.style.background = inputs.windCondition === 'severe' ? '#FF6B6B' : 
-                                   inputs.windCondition === 'strong' ? '#FFA726' : '#4CAF50';
+            // determine wind: try to use normalized value
+            const windKey = mapWindValue(inputs.windCondition).toLowerCase();
+            load.style.background = windKey.includes('severe') ? '#FF6B6B' :
+                                   windKey.includes('strong') ? '#FFA726' : '#4CAF50';
         }
-        
+
         const counterweight = craneDiagram.querySelector('.counterweight-diagram');
         if (counterweight && results.counterweight) {
-            const counterweightPercent = Math.min(parseFloat(results.counterweight.value) / 100, 0.4);
+            const cwVal = results.counterweight.value ?? results.counterweight.value_t ?? 0;
+            const counterweightPercent = Math.min(parseFloat(cwVal) / 100, 0.4);
             counterweight.style.height = `${counterweightPercent * 100}px`;
-            counterweight.style.background = results.safetyFactor?.status === 'danger' ? '#FF4757' :
-                                           results.safetyFactor?.status === 'warning' ? '#FFA500' : '#2ECC71';
+
+            const sfStatus = (results.safetyFactor && (results.safetyFactor.status || results.safetyFactor)) || '';
+            counterweight.style.background = sfStatus === 'danger' ? '#FF4757' :
+                                             sfStatus === 'warning' ? '#FFA500' : '#2ECC71';
         }
     }
 
-    // Reset Analysis Results
+    // Reset Analysis Results (unchanged except safer DOM checks)
     function resetAnalysisResults() {
         resultsContent.innerHTML = `
             <div class="placeholder-results">
                 <div class="result-item">
-                    <div class="result-icon">
-                        <i class="fas fa-balance-scale-right"></i>
-                    </div>
-                    <div class="result-info">
-                        <h4>Recommended Counterweight</h4>
-                        <div class="result-value">-- tons</div>
-                    </div>
+                    <div class="result-icon"><i class="fas fa-balance-scale-right"></i></div>
+                    <div class="result-info"><h4>Recommended Counterweight</h4><div class="result-value">-- tons</div></div>
                 </div>
-                
                 <div class="result-item">
-                    <div class="result-icon">
-                        <i class="fas fa-tachometer-alt"></i>
-                    </div>
-                    <div class="result-info">
-                        <h4>Ground Pressure</h4>
-                        <div class="result-value">-- kPa</div>
-                    </div>
+                    <div class="result-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <div class="result-info"><h4>Ground Pressure</h4><div class="result-value">-- kPa</div></div>
                 </div>
-                
                 <div class="result-item">
-                    <div class="result-icon">
-                        <i class="fas fa-square"></i>
-                    </div>
-                    <div class="result-info">
-                        <h4>Minimum Pad Size</h4>
-                        <div class="result-value">-- m²</div>
-                    </div>
+                    <div class="result-icon"><i class="fas fa-square"></i></div>
+                    <div class="result-info"><h4>Minimum Pad Size</h4><div class="result-value">-- m²</div></div>
                 </div>
-                
                 <div class="result-item">
-                    <div class="result-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="result-info">
-                        <h4>Safety Factor</h4>
-                        <div class="result-value">--</div>
-                    </div>
+                    <div class="result-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="result-info"><h4>Safety Factor</h4><div class="result-value">--</div></div>
                 </div>
             </div>
         `;
-        
+
         const status = document.getElementById('resultsStatus');
-        status.textContent = 'Enter parameters and click "Calculate"';
-        status.style.background = '';
-        status.style.color = '';
-        
-        const boom = loadDiagram.querySelector('.boom-diagram');
-        const load = loadDiagram.querySelector('.load-diagram');
-        const counterweight = loadDiagram.querySelector('.counterweight-diagram');
-        
-        if (boom) boom.style.transform = 'rotate(30deg)';
-        if (boom) boom.style.width = '40%';
-        if (load) load.style.height = '10%';
-        if (load) load.style.background = '#FF4757';
-        if (counterweight) counterweight.style.height = '15%';
-        if (counterweight) counterweight.style.background = '#2ECC71';
+        if (status) {
+            status.textContent = 'Enter parameters and click "Calculate"';
+            status.style.background = '';
+            status.style.color = '';
+        }
+
+        const boom = loadDiagram?.querySelector('.boom-diagram');
+        const load = loadDiagram?.querySelector('.load-diagram');
+        const counterweight = loadDiagram?.querySelector('.counterweight-diagram');
+
+        if (boom) { boom.style.transform = 'rotate(30deg)'; boom.style.width = '40%'; }
+        if (load) { load.style.height = '10%'; load.style.background = '#FF4757'; }
+        if (counterweight) { counterweight.style.height = '15%'; counterweight.style.background = '#2ECC71'; }
     }
 }
 
