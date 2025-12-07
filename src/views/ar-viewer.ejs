@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AR Viewer</title>
+
+    <script type="module"
+        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+        }
+        model-viewer {
+            width: 100vw;
+            height: 100vh;
+        }
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+            font-family: Arial;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="loading">Loading AR...</div>
+
+<model-viewer id="arModel"
+    src="<%= modelUrl %>"
+    camera-controls
+    ar
+    ar-modes="scene-viewer quick-look webxr"
+    autoplay
+    exposure="1"
+    shadow-intensity="1"
+    disable-zoom
+    style="display:none;">
+</model-viewer>
+
+<script>
+    const mv = document.getElementById("arModel");
+
+    mv.addEventListener("load", () => {
+        document.getElementById("loading").style.display = "none";
+        mv.style.display = "block";
+
+        // Auto trigger AR on mobile devices
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            mv.activateAR();
+        }
+    });
+</script>
+
+</body>
+</html>

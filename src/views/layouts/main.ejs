@@ -19,6 +19,12 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/images/crane-icon.svg">
 
+    <!-- model-viewer (3D + AR helper) -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    
+    <!-- QR generator (qrcodejs) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <!-- In main.ejs, add conditional loading -->
 <% if (currentPage === 'home') { %>
     <link rel="stylesheet" href="/css/home.css">

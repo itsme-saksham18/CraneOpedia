@@ -1,0 +1,47 @@
+<!-- AR Modal (GLOBAL, FIXED OVERLAY) -->
+<div id="arModal" class="ar-modal" style="display:none;">
+    <div class="ar-modal-backdrop" id="arModalBackdrop"></div>
+    <div class="ar-modal-panel">
+        <header class="ar-modal-header">
+            <h3>AR Viewer</h3>
+            <button id="arModalClose" class="btn">✕</button>
+        </header>
+
+        <main class="ar-modal-body">
+            <div class="ar-viewer-wrap">
+                <model-viewer id="mvViewer"
+                              src=""
+                              alt="AR Model"
+                              ar
+                              ar-modes="webxr scene-viewer quick-look"
+                              camera-controls
+                              autoplay
+                              exposure="1"
+                              shadow-intensity="0.5"
+                              style="width:100%; height:420px; background:#f3f3f3;">
+                </model-viewer>
+            </div>
+
+            <div class="ar-controls">
+                <div class="ar-left">
+                    <button id="preview3DBtn" class="btn">Preview (3D)</button>
+                    <button id="openARBtn" class="btn btn-primary">Open in AR</button>
+                    <a id="directModelLink" href="#" target="_blank" class="btn btn-outline">Open Raw Model</a>
+                </div>
+
+                <div class="ar-right">
+                    <div id="qrContainer"></div>
+                    <div class="ar-meta">
+                        <div id="arModelPath"></div>
+                        <small id="arNote"></small>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="ar-modal-footer">
+            <button id="copyLinkBtn" class="btn">Copy Link</button>
+            <button id="downloadModelBtn" class="btn btn-secondary">Download</button>
+        </footer>
+    </div>
+</div>

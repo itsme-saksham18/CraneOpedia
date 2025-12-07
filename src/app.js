@@ -77,6 +77,7 @@ const homeRoutes = require('./routes/home');
 const aiRoutes = require('./routes/aiRoutes');
 const favoriteRoutes = require('./routes/favorites');
 const arRoutes = require('./routes/ar');
+const arViewer = require('./routes/arViewer');
 
 // DB Connection
 require("./config/db")();
@@ -92,6 +93,7 @@ app.use('/cranes', craneRoutes);
 app.use('/ai', aiRoutes);
 app.use('/favorites', favoriteRoutes);
 app.use('/ar', arRoutes);
+app.use('/ar-viewer', arViewer);
 app.get("/debug/session", (req, res) => {
     res.json(req.session);
 });

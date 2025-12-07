@@ -1,7 +1,4 @@
-/**
- * CraneOpedia Home Page JavaScript
- * Handles dynamic dropdowns, comparison table, and load analysis
- */
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all components
@@ -248,7 +245,7 @@ function initDropdowns() {
         }
     }
 
-    // Add to Comparison Button (PURE FRONTEND)
+    // Add to Comparison Button
     addButton.addEventListener('click', function() {
         if (!selectedCrane) return;
         console.log('Add to Comparison clicked');
@@ -567,7 +564,6 @@ function initComparisonTable() {
     // SECOND COMPARISON TABLE (Actual table layout, PURE FRONTEND)
     // ========================================================================
     window.addCraneToComparisonTable = function(crane) {
-        // Ensure container exists (if you don't have #compare in EJS)
         let container = document.getElementById('compare');
         if (!container) {
             container = document.createElement('div');
@@ -684,7 +680,7 @@ function initLoadAnalysis() {
         if (val.includes('gravel')) return 'Gravel';
         if (val.includes('sand')) return 'Sand';
         if (val.includes('unstable')) return 'Unstable Ground';
-        return val; // assume already backend label
+        return val; 
     }
     // Form Submission
     analysisForm.addEventListener('submit', async function(e) {
@@ -799,25 +795,16 @@ function initLoadAnalysis() {
         return true;
     }
 
-    // Display Analysis Results - tolerant to both shapes:
-    // - legacy: result.counterweight.value
-    // - expanded: result.counterweight.value_t or result.counterweight.value
 function displayAnalysisResults(result) {
-    // --- Counterweight (already matched earlier) ---
     const cwVal = result.counterweight?.value ?? result.counterweight?.value_t ?? '--';
     const cwNote = result.counterweight?.note ?? '';
     const cwStatus = result.counterweight?.status ?? '';
-
-    // --- MAP BACKEND "ground" → UI groundPressure + padSize ---
     const gpVal = result.ground?.outriggerPressure_kPa ?? '--';
     const gpNote = `Soil capacity: ${result.ground?.soilCapacity_kPa ?? '--'} kPa`;
     const gpStatus = gpVal > (result.ground?.soilCapacity_kPa ?? 9999) ? 'danger' : 'warning';
-
     const padVal = result.ground?.requiredPadArea_m2 ?? '--';
     const padNote = `Recommended pad area to stay within soil limits.`;
     const padStatus = padVal > 10 ? 'warning' : '';
-
-    // --- MAP BACKEND "stability" → UI safetyFactor ---
     const sfVal = result.stability?.computedSafetyFactor ?? '--';
     const sfNote = `Overturning ratio: ${result.stability?.overturningRatio ?? '--'}`;
     const sfStatus = sfVal < 1.2 ? 'danger' : (sfVal < 1.5 ? 'warning' : '');
@@ -956,7 +943,7 @@ function displayAnalysisResults(result) {
         }
     }
 
-    // Reset Analysis Results (unchanged except safer DOM checks)
+    // Reset Analysis Results 
     function resetAnalysisResults() {
         resultsContent.innerHTML = `
             <div class="placeholder-results">
@@ -1203,3 +1190,170 @@ function scrollToComparison() {
     }, 1200);
 }
 
+
+/* AR viewer helpers (paste into your home.js) */
+(function() {
+  const arModal = document.getElementById('arModal');
+  const arBackdrop = document.getElementById('arModalBackdrop');
+  const arClose = document.getElementById('arModalClose');
+  const mvViewer = document.getElementById('mvViewer');
+  const qrContainer = document.getElementById('qrContainer');
+  const arModelPathEl = document.getElementById('arModelPath');
+  const arNote = document.getElementById('arNote');
+  const openARBtn = document.getElementById('openARBtn');
+  const directModelLink = document.getElementById('directModelLink');
+  const preview3DBtn = document.getElementById('preview3DBtn');
+  const copyLinkBtn = document.getElementById('copyLinkBtn');
+  const downloadModelBtn = document.getElementById('downloadModelBtn');
+
+  let currentModelUrl = null;
+  let currentArPageUrl = null;
+  let qrInstance = null;
+
+  /* -------------------------------
+       NORMALIZE MODEL PATHS
+  -------------------------------- */
+  function normalizeModelUrl(path) {
+    if (!path) return null;
+    path = String(path).trim();
+    if (/^https?:\/\//i.test(path)) return path;
+    if (path.startsWith('/')) return `${location.origin}${path}`;
+    return `${location.origin}/${path}`;
+  }
+
+  /* -------------------------------
+       GENERATE SHAREABLE AR LINK
+  -------------------------------- */
+  function buildArPageUrl(modelAbsoluteUrl) {
+    const u = new URL('/ar-viewer', location.origin);
+    u.searchParams.set('model', modelAbsoluteUrl);
+    return u.toString();
+  }
+
+  /* -------------------------------
+       QR GENERATION
+  -------------------------------- */
+  function clearQr() {
+    qrContainer.innerHTML = '';
+    qrInstance = null;
+  }
+
+  function generateQr(url) {
+    clearQr();
+    qrInstance = new QRCode(qrContainer, {
+      text: url,
+      width: 128,
+      height: 128,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  }
+
+  /* -------------------------------
+       SAFE MODAL SCROLL-LOCK FIX
+  -------------------------------- */
+    function openModal() {
+        if (!arModal) return;
+        arModal.style.display = 'flex';
+    }
+
+
+function closeModalFn() {
+    if (!arModal) return;
+    arModal.style.display = 'none';
+    clearQr();
+    if (mvViewer) mvViewer.removeAttribute('src');
+}
+
+
+  /* -------------------------------
+       PUBLIC LAUNCH FUNCTION
+  -------------------------------- */
+  window.launchARViewer = function(arPathOrUrl) {
+    const normalized = normalizeModelUrl(arPathOrUrl);
+    if (!normalized) {
+      showFlashMessage('Invalid AR model link.', 'error');
+      return;
+    }
+
+    currentModelUrl = normalized;
+    currentArPageUrl = buildArPageUrl(normalized);
+
+    if (mvViewer) {
+      mvViewer.src = normalized;
+      mvViewer.setAttribute("src", normalized);
+    }
+
+    if (directModelLink) {
+      directModelLink.href = normalized;
+      directModelLink.style.display = 'inline-block';
+    }
+
+    if (arModelPathEl) arModelPathEl.textContent = normalized;
+
+    const isUSDZ = normalized.toLowerCase().endsWith('.usdz');
+    arNote.textContent = isUSDZ
+      ? "USDZ detected — iPhone AR supported."
+      : "Tip: For iPhone AR, upload a USDZ version.";
+
+    generateQr(currentArPageUrl);
+    openModal();
+
+    if (!isMobileDevice()) {
+      alert("Your device does not support AR. Please scan the QR code using your phone.");
+      return;
+    }
+
+    setTimeout(() => {
+      try {
+        if (mvViewer?.activateAR) mvViewer.activateAR();
+      } catch (err) {
+        console.warn("Mobile AR activation error:", err);
+      }
+    }, 500);
+  };
+
+  /* -------------------------------
+       DEVICE CHECK
+  -------------------------------- */
+  function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }
+
+  /* -------------------------------
+       BUTTON EVENTS
+  -------------------------------- */
+  arClose?.addEventListener('click', closeModalFn);
+  arBackdrop?.addEventListener('click', closeModalFn);
+
+  openARBtn?.addEventListener('click', () => {
+    if (!currentArPageUrl) return;
+    window.open(currentArPageUrl, "_blank");
+  });
+
+  preview3DBtn?.addEventListener('click', () => {
+    if (!mvViewer) return;
+    mvViewer.removeAttribute("reveal");
+    mvViewer.requestFullscreen?.();
+  });
+
+  copyLinkBtn?.addEventListener('click', () => {
+    if (!currentArPageUrl) return;
+    navigator.clipboard.writeText(currentArPageUrl)
+      .then(() => showFlashMessage("Link copied!", "success"))
+      .catch(() => showFlashMessage("Copy failed", "error"));
+  });
+
+  downloadModelBtn?.addEventListener('click', () => {
+    if (!currentModelUrl) return;
+    const a = document.createElement('a');
+    a.href = currentModelUrl;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  window.buildArPageUrl = buildArPageUrl;
+})();
