@@ -330,7 +330,7 @@ function updateCopyrightYear() {
  * Show Flash Message Programmatically
  */
 function showFlashMessage(message, type = 'info') {
-    const flashContainer = document.querySelector('.flash-messages') || createFlashContainer();
+    const flashContainer = document.getElementById("flashContainer");
     
     const flashMessage = document.createElement('div');
     flashMessage.className = `flash-message flash-${type}`;

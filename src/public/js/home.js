@@ -597,7 +597,7 @@ function initComparisonTable() {
                     <tr id="priceRow"><td>Price Range</td></tr>
                     <tr id="applicationsRow"><td>Applications</td></tr>
                     <tr id="imageRow"><td>Image</td></tr>
-                    <tr id="arRow"><td>AR Model</td></tr>
+                    <tr id="arRow"><td>AR Model (DOWNLOAD GLB FILE)</td></tr>
                 </tbody>
             `;
             container.appendChild(table);
