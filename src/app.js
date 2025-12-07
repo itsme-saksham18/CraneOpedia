@@ -97,6 +97,9 @@ app.use('/ar-viewer', arViewer);
 app.get("/debug/session", (req, res) => {
     res.json(req.session);
 });
+app.get("/cron", (req, res) => {
+    res.send("Cron Job Triggered");
+});
 
 
 // Server start
