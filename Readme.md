@@ -1,14 +1,14 @@
 # 🚧 CraneOpedia
 ### *A Modern Crane Selection, Comparison & AR Visualization Platform*
 
-![CraneOpedia Logo](https://img.icons8.com/?size=512&id=11219&format=png)
+![CraneOpedia Logo](src/public/images/icon.png)
 
 ---
 
 ## 🖼️ Homepage Preview
 
 
-![Homepage Screenshot](https://via.placeholder.com/1400x650.png?text=CraneOpedia+Homepage+Preview)
+![Homepage Screenshot](src/public/images/home.png)
 
 ---
 
