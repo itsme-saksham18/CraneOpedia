@@ -1213,13 +1213,16 @@ function scrollToComparison() {
   /* -------------------------------
        NORMALIZE MODEL PATHS
   -------------------------------- */
-  function normalizeModelUrl(path) {
-    if (!path) return null;
-    path = String(path).trim();
-    if (/^https?:\/\//i.test(path)) return path;
-    if (path.startsWith('/')) return `${location.origin}${path}`;
-    return `${location.origin}/${path}`;
-  }
+function normalizeModelUrl(path) {
+  if (!path) return null;
+  path = String(path).trim();
+  path = path.replace('http://localhost:8080', location.origin);
+  path = path.replace('http://localhost:3000', location.origin); 
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith('/')) return `${location.origin}${path}`;
+  return `${location.origin}/${path}`;
+}
+
 
   /* -------------------------------
        GENERATE SHAREABLE AR LINK
