@@ -663,6 +663,7 @@ function initLoadAnalysis() {
     const warningList = document.getElementById('warningList');
     const loadDiagram = document.getElementById('loadDiagram');
     const toggleDiagramBtn = document.getElementById('toggleDiagram');
+    const modelSelect = document.getElementById('craneModelSelect');
 
     // Map short option values (if you accidentally used them) to backend labels.
     function mapWindValue(val) {
@@ -686,7 +687,6 @@ function initLoadAnalysis() {
         if (val.includes('unstable')) return 'Unstable Ground';
         return val; // assume already backend label
     }
-
     // Form Submission
     analysisForm.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -1001,49 +1001,81 @@ function displayAnalysisResults(result) {
  * Setup Event Listeners (recent cranes, favorites)
  */
 function setupEventListeners() {
-    // Add to comparison from "Popular & Recent" cards (FRONTEND, using /cranes/:id READ ONLY)
+    // Add to comparison from "Popular & Recent" cards
     document.addEventListener('click', async function(e) {
-        if (e.target.closest('.add-to-comparison-btn')) {
-            const btn = e.target.closest('.add-to-comparison-btn');
-            const craneId = btn.dataset.craneId;
+        const btn = e.target.closest('.add-to-comparison-btn');
+        if (!btn) return;
 
-            try {
-                // Prevent duplicates
-                const existingCrane = document.querySelector(`[data-crane-id="${craneId}"]`);
-                if (existingCrane) {
-                    showFlashMessage('This crane is already in comparison', 'warning');
-                    return;
-                }
+        const craneId = btn.dataset.craneId;
+        console.log('Adding crane to comparison:', craneId);
 
-                // Limit check
-                const comparisonCount = document.querySelectorAll('.comparison-column:not(.add-column)').length;
-                if (comparisonCount >= 5) {
-                    showFlashMessage('Maximum 5 cranes allowed in comparison', 'error');
-                    return;
-                }
+        if (!craneId) {
+            showFlashMessage('Invalid crane id', 'error');
+            return;
+        }
 
-                const response = await fetch(`/cranes/${craneId}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                const crane = data.crane;
+        try {
+            // === Check duplicates only inside comparison columns (avoid matching the button itself) ===
+            const existingCraneInComparison = document.querySelector(`.comparison-column[data-crane-id="${craneId}"]`);
+            if (existingCraneInComparison) {
+                showFlashMessage('This crane is already in comparison', 'warning');
+                return;
+            }
 
-                if (!crane) {
-                    showFlashMessage('Crane not found', 'error');
-                    return;
-                }
+            // Limit check
+            const comparisonCount = document.querySelectorAll('.comparison-column:not(.add-column)').length;
+            if (comparisonCount >= 5) {
+                showFlashMessage('Maximum 5 cranes allowed in comparison', 'error');
+                return;
+            }
 
-                if (typeof window.addCraneToComparison === 'function') {
-                    window.addCraneToComparison(crane);
-                }
-                if (typeof window.addCraneToComparisonTable === 'function') {
-                    window.addCraneToComparisonTable(crane);
-                }
+            // Fetch crane info (robust handling if server returns HTML instead of JSON)
+            const response = await fetch(`/cranes/${craneId}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                showFlashMessage('Crane added to comparison', 'success');
-            } catch (error) {
-                console.error('Error adding crane:', error);
+            // Check content-type before parsing
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                // Helpful debug info
+                const text = await response.text();
+                console.error('Expected JSON but received:', text.slice(0, 400));
+                showFlashMessage('Server returned HTML instead of JSON for crane details. Check /cranes/:id JSON route.', 'error');
+                return;
+            }
+
+            const data = await response.json();
+            const crane = data.crane || data; // allow either {crane:...} or direct object
+
+            if (!crane) {
+                showFlashMessage('Crane not found', 'error');
+                return;
+            }
+
+            // Add to BOTH comparison tables — exactly once each
+            if (typeof window.addCraneToComparison === 'function') {
+                window.addCraneToComparison(crane);  // CARD VIEW
+            } else {
+                console.warn('addCraneToComparison not defined');
+            }
+
+            if (typeof window.addCraneToComparisonTable === 'function') {
+                window.addCraneToComparisonTable(crane); // DETAILED TABLE
+            } else {
+                console.warn('addCraneToComparisonTable not defined');
+            }
+
+            // Smooth scroll to comparison section
+            document.getElementById("comparison-section")
+                    ?.scrollIntoView({ behavior: "smooth" });
+
+            showFlashMessage('Crane added to comparison', 'success');
+
+        } catch (error) {
+            console.error('Error adding crane:', error);
+            // If JSON parse failed or other error, surface clearer message
+            if (String(error).includes('Unexpected token') || String(error).includes('JSON')) {
+                showFlashMessage('Invalid server response (expected JSON). Check /cranes/:id route.', 'error');
+            } else {
                 showFlashMessage('Error adding crane to comparison', 'error');
             }
         }
