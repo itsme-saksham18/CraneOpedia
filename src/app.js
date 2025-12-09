@@ -10,7 +10,7 @@ require("dotenv").config();
 const passportConfig = require("./config/passport");
 const cors = require("cors");
 const expressLayouts = require('express-ejs-layouts');
-const MongoStore = require("connect-mongo");
+const MongoStore = require("connect-mongo").default;
 
 
 
