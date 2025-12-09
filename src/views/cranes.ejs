@@ -1,0 +1,279 @@
+<%
+const pageTitle = 'CraneOpedia - All Cranes';
+const currentPage = 'cranes';
+%>
+
+<main class="cranes-container">
+    <!-- Page Header -->
+     <br><br>
+    <section class="page-header" data-animate="fade-up">
+        <h1 class="page-title">
+            <i class="fas fa-crane"></i>
+            Crane Catalog
+        </h1>
+        <p class="page-subtitle">
+            Browse, search, and filter through our comprehensive crane database
+        </p>
+        <div class="header-stats">
+            <div class="stat-badge">
+                <i class="fas fa-list"></i>
+                <span><%= cranes.length %> Total Cranes</span>
+            </div>
+            <% if (favorites && favorites.length > 0) { %>
+            <div class="stat-badge">
+                <i class="fas fa-heart"></i>
+                <span><%= favorites.length %> Favorites</span>
+            </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- Search Bar -->
+    <section class="search-section" data-animate="fade-up" data-delay="100">
+        <div class="search-container glass-effect">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+                type="text" 
+                id="craneSearch" 
+                class="search-input" 
+                placeholder="Search cranes by model, type, manufacturer..."
+                autocomplete="off"
+            >
+            <button class="search-clear" id="clearSearch">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Filters Panel -->
+    <section class="filters-section" data-animate="fade-up" data-delay="150">
+        <div class="filters-container glass-effect">
+            <div class="filters-header">
+                <h3 class="filters-title">
+                    <i class="fas fa-filter"></i>
+                    Filters
+                </h3>
+                <button class="btn btn-sm btn-outline" id="clearFilters">
+                    <i class="fas fa-redo"></i>
+                    Clear All
+                </button>
+            </div>
+            
+            <div class="filters-grid">
+                <!-- Crane Type Filter -->
+                <div class="filter-group">
+                    <label for="typeFilter" class="filter-label">
+                        <i class="fas fa-cog"></i>
+                        Crane Type
+                    </label>
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="Mobile Crane">Mobile Crane</option>
+                        <option value="All-Terrain Crane">All-Terrain Crane</option>
+                        <option value="Tower Crane">Tower Crane</option>
+                        <option value="Crawler Crane">Crawler Crane</option>
+                        <option value="Engine Crane">Engine Crane</option>
+                        <option value="Overhead Crane">Overhead Crane</option>
+                    </select>
+                </div>
+
+                <!-- Load Capacity Filter -->
+                <div class="filter-group">
+                    <label for="capacityFilter" class="filter-label">
+                        <i class="fas fa-weight-hanging"></i>
+                        Load Capacity
+                    </label>
+                    <select id="capacityFilter" class="filter-select">
+                        <option value="">All Capacities</option>
+                        <option value="0-10">0–10 tons</option>
+                        <option value="10-100">10–100 tons</option>
+                        <option value="100-500">100–500 tons</option>
+                        <option value="500-1000">500–1000 tons</option>
+                        <option value="1000+">1000+ tons</option>
+                    </select>
+                </div>
+
+                <!-- Manufacturer Filter -->
+                <div class="filter-group">
+                    <label for="manufacturerFilter" class="filter-label">
+                        <i class="fas fa-industry"></i>
+                        Manufacturer
+                    </label>
+                    <select id="manufacturerFilter" class="filter-select">
+                        <option value="">All Manufacturers</option>
+                        <% 
+                        const manufacturers = [];
+                        cranes.forEach(crane => {
+                            if (crane.manufacturer && !manufacturers.includes(crane.manufacturer)) {
+                                manufacturers.push(crane.manufacturer);
+                            }
+                        });
+                        manufacturers.sort().forEach(manufacturer => { %>
+                            <option value="<%= manufacturer %>"><%= manufacturer %></option>
+                        <% }); %>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Active Filters Display -->
+            <div class="active-filters" id="activeFilters" style="display: none;">
+                <div class="active-filters-header">
+                    <span>Active Filters:</span>
+                </div>
+                <div class="filter-chips" id="filterChips">
+                    <!-- Filter chips will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cranes Grid -->
+    <section class="cranes-grid-section" data-animate="fade-up" data-delay="200">
+        <div class="grid-header">
+            <h3 class="grid-title">
+                <i class="fas fa-th-large"></i>
+                All Cranes
+                <span class="grid-count" id="craneCount"><%= cranes.length %></span>
+            </h3>
+            <div class="grid-actions">
+                <div class="view-toggle">
+                    <button class="view-btn active" id="gridView">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button class="view-btn" id="listView">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+                <button class="btn btn-sm btn-outline" id="showFavoritesOnly">
+                    <i class="fas fa-heart"></i>
+                    Show Favorites
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-content">
+                <i class="fas fa-crane empty-icon"></i>
+                <h4>No cranes found</h4>
+                <p>Try adjusting your filters or search query</p>
+                <button class="btn btn-primary" id="resetAll">
+                    <i class="fas fa-redo"></i>
+                    Reset Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Cranes Grid -->
+        <div class="cranes-grid" id="cranesGrid">
+            <% cranes.forEach(crane => { 
+                const isFavorite = favorites && favorites.includes(crane._id.toString());
+                const capacity = crane.max_load_capacity ? parseInt(crane.max_load_capacity.split(' ')[0]) : 0;
+            %>
+                <div class="crane-card" 
+                     data-id="<%= crane._id %>"
+                     data-type="<%= crane.type %>"
+                     data-manufacturer="<%= crane.manufacturer %>"
+                     data-capacity="<%= capacity %>">
+                    
+                    <!-- Card Header with Image -->
+                    <div class="card-image-container">
+                        <div class="crane-image">
+                            <% if (crane.image) { %>
+                                <img src="<%= crane.image %>" 
+                                     alt="<%= crane.model %>" 
+                                     class="crane-image-element"
+                                     loading="lazy">
+                            <% } else { %>
+                                <div class="image-placeholder">
+                                    <i class="fas fa-crane"></i>
+                                </div>
+                            <% } %>
+                            <div class="image-overlay"></div>
+                            
+                            <!-- Type Badge -->
+                            <span class="type-badge">
+                                <%= crane.type %>
+                            </span>
+                            
+                            <!-- Favorite Button -->
+                            <button class="favorite-btn <%= isFavorite ? 'active' : '' %>" 
+                                    data-id="<%= crane._id %>"
+                                    aria-label="<%= isFavorite ? 'Remove from favorites' : 'Add to favorites' %>">
+                                <i class="<%= isFavorite ? 'fas fa-heart' : 'far fa-heart' %>"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card Content -->
+                    <div class="card-content">
+                        <h3 class="crane-model">
+                            <%= crane.model %>
+                        </h3>
+                        <p class="crane-manufacturer">
+                            <i class="fas fa-industry"></i>
+                            <%= crane.manufacturer %>
+                        </p>
+
+                        <!-- Specs Grid -->
+                        <div class="specs-grid">
+                            <div class="spec-row">
+                                <div class="spec-label">
+                                    <i class="fas fa-weight-hanging"></i>
+                                    Capacity
+                                </div>
+                                <div class="spec-value">
+                                    <%= crane.max_load_capacity || 'N/A' %>
+                                </div>
+                            </div>
+                            <div class="spec-row">
+                                <div class="spec-label">
+                                    <i class="fas fa-ruler-vertical"></i>
+                                    Boom Length
+                                </div>
+                                <div class="spec-value">
+                                    <%= crane.boom_length || 'N/A' %>
+                                </div>
+                            </div>
+                            <div class="spec-row">
+                                <div class="spec-label">
+                                    <i class="fas fa-tag"></i>
+                                    Price Range
+                                </div>
+                                <div class="spec-value">
+                                    <%= crane.price_range || 'N/A' %>
+                                </div>
+                            </div>
+                            <% if (crane.applications) { %>
+                            <div class="spec-row">
+                                <div class="spec-label">
+                                    <i class="fas fa-hard-hat"></i>
+                                    Applications
+                                </div>
+                                <div class="spec-value">
+                                    <%= crane.applications %>
+                                </div>
+                            </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Card Actions -->
+                        <div class="card-actions">
+                            <a href="/cranes/<%= crane._id %>" class="btn btn-primary btn-block">
+                                <i class="fas fa-eye"></i>
+                                View Details
+                            </a>
+                            <% if (crane.ar_link) { %>
+                            <button class="btn btn-secondary btn-block ar-preview-btn" 
+                                    data-ar-link="<%= crane.ar_link %>">
+                                <i class="fas fa-cube"></i>
+                                AR Preview
+                            </button>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </section>
+</main>

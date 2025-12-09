@@ -4,22 +4,25 @@ const Admin = require("../models/Admin");
 
 // 1. List all cranes (with search)
 module.exports.listCranes = async (req, res) => {
-    const search = req.query.search || "";
+    try {
+        const cranes = await Crane.find().sort({ model: 1 });
+        const favorites = req.session.favorites || [];
+        
+        res.render('cranes', {
+            title: 'CraneOpedia - Cranes Catalog',
+            currentPage: 'cranes',
+            cranes,
+            favorites,
+            pageTitle: 'Crane Catalog',
+            currentPage: 'cranes'
+        });
+    } catch (error) {
+        console.error('Error fetching cranes:', error);
+        res.status(500).render('error', { error: 'Failed to load cranes' });
+    }
 
-    const query = search
-        ? {
-              $or: [
-                  { model: new RegExp(search, "i") },
-                  { manufacturer: new RegExp(search, "i") },
-                  { type: new RegExp(search, "i") }
-              ]
-          }
-        : {};
-
-    const cranes = await Crane.find(query);
-
-    res.json({ cranes });
 };
+
 
 // 2. View single crane detail
 module.exports.viewCrane = async (req, res) => {

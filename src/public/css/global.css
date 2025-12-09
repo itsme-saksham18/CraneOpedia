@@ -75,6 +75,14 @@
     --glass-bg: rgba(30, 30, 30, 0.85);
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    --text-primary: var(--deep-black);
+    --text-secondary: var(--gray-dark);
+    --text-tertiary: #888888;
+    --background-color: var(--soft-white);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-color-light: rgba(255, 255, 255, 0.05);
+    --glass-bg-light: rgba(40, 40, 40, 0.7);
 }
 
 /* ===== BASE RESET ===== */

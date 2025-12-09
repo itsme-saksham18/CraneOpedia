@@ -32,6 +32,12 @@
     <link rel="stylesheet" href="/css/home.css">
     <script src="/js/home.js" defer></script>
 <% } %>
+
+    <!-- In cranes.ejs, add conditional loading -->
+<% if (currentPage === 'cranes') { %>
+    <link rel="stylesheet" href="/css/cranes.css">
+    <script src="/js/cranes.js" defer></script>
+<% } %>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#F9D400">
