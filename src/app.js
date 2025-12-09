@@ -10,7 +10,7 @@ require("dotenv").config();
 const passportConfig = require("./config/passport");
 const cors = require("cors");
 const expressLayouts = require('express-ejs-layouts');
-
+const MongoStore = require("connect-mongo");
 
 
 
@@ -40,6 +40,15 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+        store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI, 
+      collectionName: "sessions",
+      ttl: 14 * 24 * 60 * 60 
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24,
+      secure: false, 
+    },
   })
 );
 
