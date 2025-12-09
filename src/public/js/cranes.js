@@ -351,6 +351,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const craneId = this.dataset.id;
                 const isCurrentlyFavorite = this.classList.contains('active');
+                const craneCard = this.closest('.crane-card');
+                const craneName = craneCard ? craneCard.querySelector('.crane-model').textContent.trim() : 'Crane';
                 
                 try {
                     // Optimistic UI update
@@ -381,7 +383,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     const result = await response.json();
-                    
+
+                    const message = isCurrentlyFavorite ? 
+                    `"${craneName}" removed from favorites` : 
+                    `"${craneName}" added to favorites`;
+                    const type = isCurrentlyFavorite ? 'info' : 'success';
+                    showFlashMessage(message, type);
                     // Update filters if showing favorites only
                     if (currentFilters.favoritesOnly) {
                         filterCranes();
@@ -395,8 +402,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon.classList.toggle('far');
                     icon.classList.toggle('fas');
                     
-                    // Show error notification
-                    showNotification('Failed to update favorite. Please try again.', 'error');
+                    // Show error notifications
+                    showFlashMessage('Failed to update favorite. Please try again.', 'error');
                 }
             });
         });
