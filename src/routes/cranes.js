@@ -4,6 +4,7 @@ const craneController = require("../controllers/cranes.js");
 
 // PUBLIC CRANE ROUTES
 router.get("/", craneController.listCranes);
+router.get("/page/:id", craneController.viewCranePage);
 router.get("/:id", craneController.viewCrane);
 
 // CONTACT OWNER

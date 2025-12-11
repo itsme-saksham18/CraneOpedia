@@ -27,6 +27,9 @@
     <!-- QR generator (qrcodejs) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+    <!-- AR VIEWER script -->
+    <script src="/js/arViewer.js"></script>
+
     <!-- In main.ejs, add conditional loading -->
 <% if (currentPage === 'home') { %>
     <link rel="stylesheet" href="/css/home.css">
@@ -37,6 +40,13 @@
 <% if (currentPage === 'cranes') { %>
     <link rel="stylesheet" href="/css/cranes.css">
     <script src="/js/cranes.js" defer></script>
+<% } %>
+
+
+    <!-- In cranes.ejs, add conditional loading -->
+<% if (currentPage === 'craneDetails') { %>
+    <link rel="stylesheet" href="/css/craneDetails.css">
+    <script src="/js/craneDetails.js" defer></script>
 <% } %>
     
     <!-- PWA Meta Tags -->

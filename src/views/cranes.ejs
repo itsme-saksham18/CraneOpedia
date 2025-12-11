@@ -259,7 +259,7 @@ const currentPage = 'cranes';
 
                         <!-- Card Actions -->
                         <div class="card-actions">
-                            <a href="/cranes/<%= crane._id %>" class="btn btn-primary btn-block">
+                            <a href="/cranes/page/<%= crane._id %>" class="btn btn-primary btn-block">
                                 <i class="fas fa-eye"></i>
                                 View Details
                             </a>
@@ -276,4 +276,5 @@ const currentPage = 'cranes';
             <% }); %>
         </div>
     </section>
+    <%- include('./partials/arModal') %>
 </main>

@@ -35,6 +35,48 @@ module.exports.viewCrane = async (req, res) => {
     res.json({ crane });
 };
 
+
+module.exports.viewCranePage = async (req, res) => {
+    try {
+        const craneId = req.params.id;
+        const crane = await Crane.findById(craneId);
+        
+        if (!crane) {
+            // Set flash message for error
+            req.flash('error', 'Crane not found');
+            req.flash('message', 'The requested crane does not exist.');
+            
+            // Redirect to cranes listing page
+            return res.redirect('/cranes');
+        }
+        
+        // Get related cranes (same type)
+        const relatedCranes = await Crane.find({
+            _id: { $ne: craneId },
+            type: crane.type
+        }).limit(3);
+        
+        // Get user favorites
+        const favorites = req.session.favorites || [];
+        console.log(crane.applications, typeof crane.applications);
+
+        res.render('craneDetails', {
+            crane,
+            relatedCranes,
+            favorites,
+            title: 'CraneOpedia - ' + crane.model,
+            currentPage: 'craneDetails',
+        });
+        
+    } catch (error) {
+        console.error('Error fetching crane details:', error);
+        res.status(500).render('error', {
+            error: 'Server Error',
+            message: 'Failed to load crane details. Please try again.'
+        });
+    }
+};
+
 // 3. Contact form page (placeholder for now)
 module.exports.contactForm = async (req, res) => {
     const crane = await Crane.findById(req.params.id).populate("owner");

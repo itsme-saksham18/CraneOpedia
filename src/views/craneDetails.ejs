@@ -1,0 +1,570 @@
+<%
+const pageTitle = `${crane.model} - Crane Details`;
+const currentPage = 'craneDetails';
+%>
+
+<main class="crane-details-container">
+    <!-- Hero Section -->
+    <section class="hero-section" data-animate="fade-up">
+        <div class="hero-background">
+            <% if (crane.image) { %>
+                <img src="<%= crane.image %>" alt="<%= crane.model %>" class="hero-background-image">
+            <% } %>
+            <div class="hero-overlay"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge-container">
+                <span class="crane-type-badge">
+                    <%= crane.type %>
+                </span>
+                <button class="favorite-btn hero-favorite <%= favorites && favorites.includes(crane._id.toString()) ? 'active' : '' %>" 
+                        data-id="<%= crane._id %>"
+                        aria-label="Toggle favorite">
+                    <i class="<%= favorites && favorites.includes(crane._id.toString()) ? 'fas fa-heart' : 'far fa-heart' %>"></i>
+                </button>
+            </div>
+            
+            <div class="hero-title-container">
+                <h1 class="crane-model-title">
+                    <%= crane.model %>
+                </h1>
+                <p class="crane-manufacturer-hero">
+                    <i class="fas fa-industry"></i>
+                    <%= crane.manufacturer %>
+                </p>
+            </div>
+            
+            <div class="hero-specs-grid">
+                <div class="spec-item-hero">
+                    <div class="spec-icon-hero">
+                        <i class="fas fa-weight-hanging"></i>
+                    </div>
+                    <div class="spec-content-hero">
+                        <span class="spec-label-hero">Max Load</span>
+                        <span class="spec-value-hero"><%= crane.max_load_capacity || 'N/A' %></span>
+                    </div>
+                </div>
+                
+                <div class="spec-item-hero">
+                    <div class="spec-icon-hero">
+                        <i class="fas fa-ruler-vertical"></i>
+                    </div>
+                    <div class="spec-content-hero">
+                        <span class="spec-label-hero">Boom Length</span>
+                        <span class="spec-value-hero"><%= crane.boom_length || 'N/A' %></span>
+                    </div>
+                </div>
+                
+                <% if (crane.specs && crane.specs.reach_m) { %>
+                <div class="spec-item-hero">
+                    <div class="spec-icon-hero">
+                        <i class="fas fa-arrows-alt-h"></i>
+                    </div>
+                    <div class="spec-content-hero">
+                        <span class="spec-label-hero">Max Reach</span>
+                        <span class="spec-value-hero"><%= crane.specs.reach_m %> m</span>
+                    </div>
+                </div>
+                <% } %>
+                
+                <% if (crane.specs && crane.specs.weight_t) { %>
+                <div class="spec-item-hero">
+                    <div class="spec-icon-hero">
+                        <i class="fas fa-weight"></i>
+                    </div>
+                    <div class="spec-content-hero">
+                        <span class="spec-label-hero">Weight</span>
+                        <span class="spec-value-hero"><%= crane.specs.weight_t %> t</span>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Gallery Section -->
+    <section class="gallery-section" data-animate="fade-up" data-delay="100">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-images"></i>
+                Image Gallery
+            </h2>
+            <p class="section-subtitle">
+                Explore detailed views of the <%= crane.model %>
+            </p>
+        </div>
+        
+        <div class="gallery-container">
+            <div class="main-image-viewer glass-effect">
+                <% if (crane.image) { %>
+                    <img id="mainImage" src="<%= crane.image %>" alt="<%= crane.model %>" class="main-image">
+                <% } else { %>
+                    <div class="image-placeholder-large">
+                        <i class="fas fa-crane"></i>
+                        <span>No image available</span>
+                    </div>
+                <% } %>
+                <button class="zoom-btn" id="zoomBtn" aria-label="Zoom image">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+            </div>
+            
+            <div class="thumbnail-container" id="thumbnailContainer">
+                <% if (crane.image) { %>
+                    <div class="thumbnail active" data-image="<%= crane.image %>">
+                        <img src="<%= crane.image %>" alt="Thumbnail 1">
+                    </div>
+                <% } %>
+                <% if (crane.images && crane.images.length > 0) { 
+                    crane.images.forEach((image, index) => { %>
+                        <div class="thumbnail" data-image="<%= image %>">
+                            <img src="<%= image %>" alt="Thumbnail <%= index + 2 %>">
+                        </div>
+                    <% });
+                } else { %>
+                    <!-- Placeholder thumbnails if no additional images -->
+                    <% for(let i = 0; i < 3; i++) { %>
+                        <div class="thumbnail placeholder">
+                            <div class="placeholder-thumb">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        </div>
+                    <% } %>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Panel -->
+    <section class="summary-section" data-animate="fade-up" data-delay="150">
+        <div class="summary-grid">
+            <!-- Price Card -->
+            <div class="summary-card glass-effect">
+                <div class="summary-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="summary-content">
+                    <h3 class="summary-title">Price Range</h3>
+                    <p class="summary-value <%= crane.price_range ? 'has-value' : '' %>">
+                        <%= crane.price_range || 'Price on request' %>
+                    </p>
+                    <% if (crane.price_range) { %>
+                    <div class="summary-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Contact for exact pricing
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Applications Card -->
+            <div class="summary-card glass-effect">
+                <div class="summary-icon">
+                    <i class="fas fa-hard-hat"></i>
+                </div>
+                <div class="summary-content">
+                    <h3 class="summary-title">Applications</h3>
+                    <div class="applications-badges">
+                        <% if (crane.applications && Array.isArray(crane.applications) && crane.applications.length > 0) { 
+                            crane.applications.forEach(app => { 
+                                if (app && app.trim()) { %>
+                                    <span class="application-badge"><%= app.trim() %></span>
+                                <% }
+                            });
+                        } else if (crane.applications && typeof crane.applications === 'string') { 
+                            // Handle string format as fallback
+                            const apps = crane.applications.split(',').map(a => a.trim());
+                            apps.forEach(app => { 
+                                if (app) { %>
+                                    <span class="application-badge"><%= app %></span>
+                                <% }
+                            });
+                        } else { %>
+                            <span class="application-badge">General construction</span>
+                            <span class="application-badge">Industrial lifting</span>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tags Card -->
+            <% if (crane.tags && crane.tags.length > 0) { %>
+            <div class="summary-card glass-effect">
+                <div class="summary-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="summary-content">
+                    <h3 class="summary-title">Tags</h3>
+                    <div class="tags-container">
+                        <% crane.tags.forEach(tag => { %>
+                            <span class="tag-badge"><%= tag %></span>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- Specifications Table -->
+    <section class="specs-section" data-animate="fade-up" data-delay="200">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-list-alt"></i>
+                Specifications
+            </h2>
+            <p class="section-subtitle">
+                Complete technical specifications of <%= crane.model %>
+            </p>
+        </div>
+        
+        <div class="specs-table-container glass-effect">
+            <table class="specs-table">
+                <tbody>
+                    <tr class="spec-row">
+                        <td class="spec-label-cell">
+                            <i class="fas fa-cube"></i>
+                            Model
+                        </td>
+                        <td class="spec-value-cell"><%= crane.model %></td>
+                    </tr>
+                    <tr class="spec-row">
+                        <td class="spec-label-cell">
+                            <i class="fas fa-cog"></i>
+                            Type
+                        </td>
+                        <td class="spec-value-cell"><%= crane.type %></td>
+                    </tr>
+                    <tr class="spec-row">
+                        <td class="spec-label-cell">
+                            <i class="fas fa-industry"></i>
+                            Manufacturer
+                        </td>
+                        <td class="spec-value-cell"><%= crane.manufacturer %></td>
+                    </tr>
+                    <tr class="spec-row">
+                        <td class="spec-label-cell">
+                            <i class="fas fa-weight-hanging"></i>
+                            Max Load Capacity
+                        </td>
+                        <td class="spec-value-cell"><%= crane.max_load_capacity || 'N/A' %></td>
+                    </tr>
+                    <tr class="spec-row">
+                        <td class="spec-label-cell">
+                            <i class="fas fa-ruler-vertical"></i>
+                            Boom Length
+                        </td>
+                        <td class="spec-value-cell"><%= crane.boom_length || 'N/A' %></td>
+                    </tr>
+                    <% if (crane.specs) { 
+                        Object.entries(crane.specs).forEach(([key, value]) => { 
+                            if (key !== '_id') { %>
+                            <tr class="spec-row">
+                                <td class="spec-label-cell">
+                                    <i class="fas fa-info-circle"></i>
+                                    <%= key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) %>
+                                </td>
+                                <td class="spec-value-cell"><%= value %></td>
+                            </tr>
+                        <% }
+                        });
+                    } %>
+                    <% if (crane.price_range) { %>
+                    <tr class="spec-row">
+                        <td class="spec-label-cell">
+                            <i class="fas fa-tag"></i>
+                            Price Range
+                        </td>
+                        <td class="spec-value-cell"><%= crane.price_range %></td>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Applications Details -->
+    <% if (crane.applications && Array.isArray(crane.applications) && crane.applications.length > 0) { %>
+    <section class="applications-details-section" data-animate="fade-up" data-delay="250">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-hard-hat"></i>
+                Applications
+            </h2>
+            <p class="section-subtitle">
+                Common use cases for the <%= crane.model %>
+            </p>
+        </div>
+        
+        <div class="applications-grid">
+            <% 
+            const appIcons = {
+                'logistics': 'fas fa-truck-loading',
+                'production': 'fas fa-industry',
+                'assembly': 'fas fa-tools',
+                'construction': 'fas fa-building',
+                'industrial': 'fas fa-industry',
+                'bridge': 'fas fa-bridge',
+                'stadium': 'fas fa-volleyball-ball',
+                'wind': 'fas fa-fan',
+                'shipyard': 'fas fa-ship',
+                'mining': 'fas fa-mountain',
+                'power': 'fas fa-bolt',
+                'rescue': 'fas fa-life-ring',
+                'warehouse': 'fas fa-warehouse',
+                'workshop': 'fas fa-tools',
+                'center': 'fas fa-building'
+            };
+            
+            crane.applications.forEach(app => {
+                if (!app || !app.trim()) return;
+                
+                const appText = app.trim();
+                const appLower = appText.toLowerCase();
+                let icon = 'fas fa-cog';
+                
+                // Find matching icon
+                Object.entries(appIcons).forEach(([key, value]) => {
+                    if (appLower.includes(key)) {
+                        icon = value;
+                    }
+                });
+            %>
+                <div class="application-card glass-effect">
+                    <div class="app-icon">
+                        <i class="<%= icon %>"></i>
+                    </div>
+                    <div class="app-content">
+                        <h3 class="app-title"><%= appText %></h3>
+                        <p class="app-description">
+                            The <%= crane.model %> is ideal for <%= appText.toLowerCase() %> operations due to its 
+                            <%= crane.max_load_capacity ? crane.max_load_capacity.split(' ')[0] + ' ton capacity' : 'high capacity' %>, 
+                            <%= crane.boom_length ? crane.boom_length.split(' ')[0] + ' meter boom' : 'extended reach' %>, 
+                            and precision controls.
+                        </p>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- Load Charts Section -->
+    <section class="load-charts-section" data-animate="fade-up" data-delay="300">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Load Charts
+            </h2>
+            <p class="section-subtitle">
+                Performance charts and load capacity diagrams
+            </p>
+        </div>
+        
+        <div class="charts-container">
+            <% if (crane.load_charts && crane.load_charts.length > 0) { 
+                crane.load_charts.forEach((chart, index) => { %>
+                    <div class="chart-card glass-effect">
+                        <div class="chart-image">
+                            <img src="<%= chart %>" alt="Load Chart <%= index + 1 %>">
+                            <button class="chart-view-btn" data-chart="<%= chart %>">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                        <div class="chart-info">
+                            <h4>Load Chart <%= index + 1 %></h4>
+                            <p>Capacity vs. radius diagram</p>
+                        </div>
+                    </div>
+                <% });
+            } else { %>
+                <div class="empty-charts glass-effect">
+                    <div class="empty-content">
+                        <i class="fas fa-chart-bar"></i>
+                        <h4>Load Charts Unavailable</h4>
+                        <p>Load charts for <%= crane.model %> are currently unavailable.</p>
+                        <div class="chart-placeholder">
+                            <div class="placeholder-grid">
+                                <div class="axis"></div>
+                                <div class="curve"></div>
+                                <div class="point"></div>
+                                <div class="label">Load (tons)</div>
+                                <div class="label">Radius (m)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- AR Model Section -->
+    <% if (crane.ar_link) { %>
+    <section class="ar-section" data-animate="fade-up" data-delay="350">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-vr-cardboard"></i>
+                AR Model Preview
+            </h2>
+            <p class="section-subtitle">
+                View <%= crane.model %> in augmented reality
+            </p>
+        </div>
+        
+        <div class="ar-container glass-effect">
+            <div class="ar-preview">
+                <div class="ar-placeholder">
+                    <i class="fas fa-cube"></i>
+                    <span>3D Model Ready</span>
+                </div>
+                <div class="ar-controls">
+                    <button class="btn btn-primary ar-view-btn" onclick="launchARViewer('<%= crane.ar_link %>')">
+                        <i class="fas fa-vr-cardboard"></i>
+                        View in AR
+                    </button>
+                    <button class="btn btn-secondary preview-3d-btn" data-model-url="<%= crane.ar_link %>">
+                        <i class="fas fa-eye"></i>
+                        3D Preview
+                    </button>
+                    <a href="<%= crane.ar_link %>" class="btn btn-outline" download>
+                        <i class="fas fa-download"></i>
+                        Download Model
+                    </a>
+                </div>
+                <div class="ar-info">
+                    <p><i class="fas fa-info-circle"></i> Compatible with iOS AR Quick Look and Android Scene Viewer</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <% } else { %>
+    <section class="ar-section disabled" data-animate="fade-up" data-delay="350">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-vr-cardboard"></i>
+                AR Model Preview
+            </h2>
+            <p class="section-subtitle">
+                AR model not available for this crane
+            </p>
+        </div>
+        
+        <div class="ar-container glass-effect disabled">
+            <div class="ar-preview disabled">
+                <div class="ar-placeholder disabled">
+                    <i class="fas fa-ban"></i>
+                    <span>AR Model Not Available</span>
+                </div>
+                <p class="ar-unavailable">
+                    <i class="fas fa-info-circle"></i>
+                    AR model for <%= crane.model %> is not currently available.
+                </p>
+            </div>
+        </div>
+    </section>
+    <% } %>
+    <%- include('./partials/arModal') %>
+
+    <!-- Related Cranes Section -->
+    <section class="related-section" data-animate="fade-up" data-delay="400">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-crane"></i>
+                Similar Cranes
+            </h2>
+            <p class="section-subtitle">
+                Explore cranes with similar specifications
+            </p>
+        </div>
+        
+        <div class="related-cranes-grid">
+            <% if (relatedCranes && relatedCranes.length > 0) { 
+                relatedCranes.forEach(relatedCrane => { 
+                    if (relatedCrane._id !== crane._id) { %>
+                        <div class="crane-card-small">
+                            <div class="card-image">
+                                <% if (relatedCrane.image) { %>
+                                    <img src="<%= relatedCrane.image %>" alt="<%= relatedCrane.model %>">
+                                <% } %>
+                                <span class="crane-type-badge-small"><%= relatedCrane.type %></span>
+                            </div>
+                            <div class="card-content-small">
+                                <h4 class="crane-model-small"><%= relatedCrane.model %></h4>
+                                <p class="crane-manufacturer-small">
+                                    <i class="fas fa-industry"></i>
+                                    <%= relatedCrane.manufacturer %>
+                                </p>
+                                <div class="crane-specs-small">
+                                    <span class="spec-small">
+                                        <i class="fas fa-weight-hanging"></i>
+                                        <%= relatedCrane.max_load_capacity || 'N/A' %>
+                                    </span>
+                                    <span class="spec-small">
+                                        <i class="fas fa-ruler-vertical"></i>
+                                        <%= relatedCrane.boom_length || 'N/A' %>
+                                    </span>
+                                </div>
+                                <a href="/cranes/<%= relatedCrane._id %>" class="btn btn-sm btn-outline">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    <% }
+                });
+            } else { %>
+                <!-- Placeholder cards -->
+                <% for(let i = 0; i < 3; i++) { %>
+                    <div class="crane-card-small placeholder">
+                        <div class="card-image placeholder">
+                            <div class="placeholder-image">
+                                <i class="fas fa-crane"></i>
+                            </div>
+                            <span class="crane-type-badge-small">Type</span>
+                        </div>
+                        <div class="card-content-small">
+                            <div class="placeholder-line long"></div>
+                            <div class="placeholder-line medium"></div>
+                            <div class="placeholder-specs">
+                                <div class="placeholder-line short"></div>
+                                <div class="placeholder-line short"></div>
+                            </div>
+                            <div class="placeholder-button"></div>
+                        </div>
+                    </div>
+                <% } %>
+            <% } %>
+        </div>
+        
+        <div class="section-footer">
+            <a href="/cranes" class="btn btn-primary">
+                <i class="fas fa-list"></i>
+                View All Cranes
+            </a>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox-modal" id="lightboxModal">
+        <div class="lightbox-content">
+            <button class="lightbox-close" id="lightboxClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="lightbox-image-container">
+                <img id="lightboxImage" src="" alt="">
+            </div>
+            <div class="lightbox-controls">
+                <button class="lightbox-prev" id="lightboxPrev">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="lightbox-next" id="lightboxNext">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="lightbox-info">
+                <span id="lightboxCaption"><%= crane.model %></span>
+                <span id="lightboxCounter">1 / 1</span>
+            </div>
+        </div>
+    </div>
+</main>

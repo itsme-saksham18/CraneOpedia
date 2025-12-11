@@ -1,10 +1,11 @@
-<!-- AR Modal (GLOBAL, FIXED OVERLAY) -->
+<!-- Updated AR Modal Partial (arModal.ejs) -->
 <div id="arModal" class="ar-modal" style="display:none;">
     <div class="ar-modal-backdrop" id="arModalBackdrop"></div>
+    
     <div class="ar-modal-panel">
         <header class="ar-modal-header">
             <h3>AR Viewer</h3>
-            <button id="arModalClose" class="btn">✕</button>
+            <button id="arModalClose" class="btn ar-modal-close">✕</button>
         </header>
 
         <main class="ar-modal-body">
@@ -24,24 +25,34 @@
 
             <div class="ar-controls">
                 <div class="ar-left">
-                    <button id="preview3DBtn" class="btn">Preview (3D)</button>
+                    <button id="preview3DBtn" class="btn btn-secondary">Preview 3D</button>
                     <button id="openARBtn" class="btn btn-primary">Open in AR</button>
-                    <a id="directModelLink" href="#" target="_blank" class="btn btn-outline">Open Raw Model</a>
+                    <a id="directModelLink" href="#" target="_blank" class="btn btn-outline" style="display:none">
+                        Download Model
+                    </a>
                 </div>
 
                 <div class="ar-right">
-                    <div id="qrContainer"></div>
+                    <div class="qr-section">
+                        <h4>Scan for AR</h4>
+                        <div id="qrContainer"></div>
+                        <small>Scan QR code with your phone</small>
+                    </div>
                     <div class="ar-meta">
-                        <div id="arModelPath"></div>
-                        <small id="arNote"></small>
+                        <div id="arModelPath" class="model-path"></div>
+                        <small id="arNote" class="ar-note"></small>
                     </div>
                 </div>
             </div>
         </main>
 
         <footer class="ar-modal-footer">
-            <button id="copyLinkBtn" class="btn">Copy Link</button>
+            <button id="copyLinkBtn" class="btn btn-outline">Copy Link</button>
             <button id="downloadModelBtn" class="btn btn-secondary">Download</button>
         </footer>
     </div>
 </div>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>

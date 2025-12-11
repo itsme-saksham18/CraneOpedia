@@ -5,9 +5,7 @@
     <title>AR Viewer</title>
 
     <!-- MODEL VIEWER -->
-    <script type="module"
-        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-    </script>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
     <style>
         body {
@@ -29,7 +27,6 @@
             font-size: 18px;
             font-family: Arial;
         }
-
         #launchARBtn {
             position: fixed;
             bottom: 24px;
@@ -52,10 +49,11 @@
 
 <div id="loading">Loading AR...</div>
 
+<!-- FIXED: Added quick-look for iOS -->
 <model-viewer id="arModel"
     src="<%= modelUrl %>"
     ar
-    ar-modes="scene-viewer webxr"
+    ar-modes="scene-viewer quick-look webxr"
     camera-controls
     autoplay
     exposure="1"
@@ -70,22 +68,28 @@
     const mv = document.getElementById("arModel");
     const launchBtn = document.getElementById("launchARBtn");
 
-    // When model loads, show viewer + button
-    mv.addEventListener("load", () => {
+    // Detect AR support using model-viewer's built-in API
+    async function checkARSupport() {
+        try {
+            return await mv.supportsAR;
+        } catch {
+            return false;
+        }
+    }
+
+    mv.addEventListener("load", async () => {
         document.getElementById("loading").style.display = "none";
         mv.style.display = "block";
 
-        // Show button only on devices that support AR
-        if (mv.canActivateAR) {
+        // Check if device can run AR
+        const supportsAR = await checkARSupport();
+        if (supportsAR) {
             launchBtn.style.display = "block";
         }
     });
 
-    // Launch AR ONLY after user taps the button (browser requirement)
     launchBtn.addEventListener("click", () => {
-        if (mv.canActivateAR) {
-            mv.activateAR();
-        }
+        mv.activateAR();
     });
 </script>
 

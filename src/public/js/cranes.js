@@ -409,104 +409,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Show notification
-    function showNotification(message, type = 'info') {
-        // Check if notification container exists
-        let notificationContainer = document.querySelector('.notification-container');
-        if (!notificationContainer) {
-            notificationContainer = document.createElement('div');
-            notificationContainer.className = 'notification-container';
-            document.body.appendChild(notificationContainer);
-        }
-        
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
-            <span>${message}</span>
-        `;
-        
-        notificationContainer.appendChild(notification);
-        
-        // Auto remove after 3 seconds
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-
     // AR Preview buttons
-    document.querySelectorAll('.ar-preview-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const arLink = this.dataset.arLink;
-            if (arLink) {
-                // Open AR modal or link
-                if (typeof window.openARModal === 'function') {
-                    window.openARModal(arLink);
-                } else {
-                    window.open(arLink, '_blank');
-                }
+document.querySelectorAll('.ar-preview-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const arLink = this.dataset.arLink;
+        if (arLink) {
+            // Open AR modal or link using the launchARViewer function
+            if (typeof window.launchARViewer === 'function') {
+                window.launchARViewer(arLink);
+            } else {
+                // Fallback: open in new tab
+                window.open(arLink, '_blank');
+                showFlashMessage('Opening AR model in new tab', 'info');
             }
-        });
+        }
     });
 });
-
-// Add notification styles dynamically
-const notificationStyles = `
-.notification-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 400px;
-}
-
-.notification {
-    background: var(--glass-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    backdrop-filter: blur(10px);
-    animation: slideIn 0.3s ease;
-    transition: all 0.3s ease;
-}
-
-.notification-error {
-    border-left: 4px solid #ff4757;
-}
-
-.notification-error i {
-    color: #ff4757;
-}
-
-.notification-success {
-    border-left: 4px solid var(--crane-yellow);
-}
-
-.notification-success i {
-    color: var(--crane-yellow);
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-`;
-
-// Inject notification styles
-const styleSheet = document.createElement('style');
-styleSheet.textContent = notificationStyles;
-document.head.appendChild(styleSheet);
+});
