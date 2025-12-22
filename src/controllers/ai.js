@@ -1,98 +1,144 @@
+require("dotenv").config();
+const { GoogleGenAI } = require("@google/genai");
+
+/* =========================
+   GEMINI CLIENT
+========================= */
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY
+});
+
+/* =========================
+   AI QUESTIONS CONFIG
+========================= */
+
 const QUESTIONS = [
-    "What is the load weight you need to lift (in tons)?",
-    "What is the required lifting height?",
-    "What is the working radius?",
-    "What is the terrain type? (soft, muddy, plain, rocky, indoor)",
-    "Are there any obstructions like buildings or powerlines?",
-    "What is the site access condition? (wide, narrow, indoor)",
-    "Do you have any preferred crane type? (mobile, crawler, tower, none)",
-    "Where is the project location?",
-    "What are the wind conditions? (low, medium, high)"
+  { key: "load", q: "What is the load weight you need to lift (in tons)?" },
+  { key: "height", q: "What is the required lifting height?" },
+  { key: "radius", q: "What is the working radius?" },
+  { key: "terrain", q: "What is the terrain type? (soft, muddy, plain, rocky, indoor)" },
+  { key: "obstructions", q: "Are there any obstructions like buildings or powerlines?" },
+  { key: "access", q: "What is the site access condition? (wide, narrow, indoor)" },
+  { key: "preference", q: "Do you have any preferred crane type? (mobile, crawler, tower, none)" },
+  { key: "location", q: "Where is the project location?" },
+  { key: "wind", q: "What are the wind conditions? (low, medium, high)" }
 ];
+
+/* =========================
+   START AI SESSION
+========================= */
+
 module.exports.aiHome = (req, res) => {
-    req.session.ai = { step: 0, answers: {} };
-    res.json({
-        message: "AI Assistant Ready",
-        nextQuestion: QUESTIONS[0]
-    });
+  req.session.ai = { step: 0, answers: {} };
+
+  res.json({
+    message: "AI Assistant Ready",
+    nextQuestion: QUESTIONS[0].q
+  });
 };
+
+/* =========================
+   PROCESS USER ANSWER
+========================= */
+
 module.exports.processMessage = async (req, res) => {
-    if (!req.session.ai) {
-        req.session.ai = { step: 0, answers: {} };
-    }
+  if (!req.session.ai) {
+    req.session.ai = { step: 0, answers: {} };
+  }
 
-    const { answer } = req.body;
-    const step = req.session.ai.step;
+  const { answer } = req.body;
+  const step = req.session.ai.step;
 
-    // Store answer in session
-    req.session.ai.answers[QUESTIONS[step]] = answer;
+  if (!QUESTIONS[step]) {
+    return res.status(400).json({ error: "Invalid AI step" });
+  }
 
-    // Move to next question
-    req.session.ai.step++;
+  // Store answer
+  const currentQuestion = QUESTIONS[step];
+  req.session.ai.answers[currentQuestion.key] = answer;
+  req.session.ai.step++;
 
-    // If all questions answered → send to Gemini
-    if (req.session.ai.step >= QUESTIONS.length) {
-        return await finalizeAI(req, res);
-    }
+  // Final step → call AI
+  if (req.session.ai.step >= QUESTIONS.length) {
+    return finalizeAI(req, res);
+  }
 
-    // Return next question
-    res.json({
-        message: "Next question",
-        nextQuestion: QUESTIONS[req.session.ai.step]
-    });
+  res.json({
+    message: "Next question",
+    nextQuestion: QUESTIONS[req.session.ai.step].q
+  });
 };
+
+/* =========================
+   RESET AI SESSION
+========================= */
 
 module.exports.resetAI = (req, res) => {
-    req.session.ai = null;
-    res.json({ message: "AI session cleared" });
+  req.session.ai = null;
+  res.json({ message: "AI session cleared" });
 };
 
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+/* =========================
+   FINALIZE & CALL GEMINI
+========================= */
 
-const finalizeAI = async (req, res) => {
-    try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-        const prompt = `
+async function finalizeAI(req, res) {
+  try {
+    const prompt = `
 You are a professional crane recommendation system.
-Based on this user's answers, suggest the ideal crane models.
+
+STRICT RULES:
+- Return ONLY valid JSON
+- No markdown
+- No explanations outside JSON
+- No trailing commas
 
 User Answers:
 ${JSON.stringify(req.session.ai.answers, null, 2)}
 
-Provide:
-- Best recommended crane model(s)
-- 2 alternative cranes
-- Technical explanation
-- Capacity safety notes
-- Any warnings (wind, terrain, radius)
-- Suggested boom configuration
-Return output in structured JSON format:
+Return EXACTLY in this format:
 {
-  "recommended": [...],
-  "alternatives": [...],
-  "reasoning": "...",
-  "warnings": [...],
-  "idealSpecs": {...}
+  "recommended": ["Crane Model"],
+  "alternatives": ["Alt 1", "Alt 2"],
+  "reasoning": "Short explanation",
+  "warnings": ["warning1"],
+  "idealSpecs": {
+    "capacity": "",
+    "boomLength": "",
+    "radius": ""
+  }
 }
-  in no more than 100 words
 `;
 
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+    // ✅ OFFICIAL API CALL (matches Google docs)
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt
+    });
 
-        res.json({
-            done: true,
-            answers: req.session.ai.answers,
-            recommendations: JSON.parse(text)
-        });
+    const text = response.text;
 
-        // Clear AI session if desired:
-        req.session.ai = null;
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "AI processing failed" });
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      return res.status(500).json({
+        error: "AI returned invalid JSON",
+        rawResponse: text
+      });
     }
-};
+
+    res.json({
+      done: true,
+      answers: req.session.ai.answers,
+      recommendations: parsed
+    });
+
+    req.session.ai = null;
+
+  } catch (err) {
+    console.error("AI ERROR:", err);
+    res.status(500).json({ error: "AI processing failed" });
+  }
+}
