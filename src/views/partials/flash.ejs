@@ -1,0 +1,105 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="..." crossorigin="anonymous" />
+<style>
+  /* Flash Messages */
+  .alert {
+    position: relative;
+    margin: 20px auto;
+    padding: 16px 40px 16px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    max-width: 90%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease-in-out;
+    z-index: 20000;
+  }
+
+  .alert-success {
+    background-color: #e6f7ec;
+    border: 1px solid #b7e0c3;
+    color: #276749;
+  }
+
+  .alert-danger {
+    background-color: #fdecea;
+    border: 1px solid #f5c2c7;
+    color: #842029;
+  }
+
+    .alert-error {
+    background-color: #fdecea;
+    border: 1px solid #f5c2c7;
+    color: #842029;
+  }
+
+  .btn-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    color: #999;
+    cursor: pointer;
+    opacity: 0.7;
+  }
+
+  .btn-close:hover {
+    opacity: 1;
+    color: #000;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<% if (success && success.length > 0) { %>
+  <% success.forEach(function(msg, index) { %>
+    <div id="alert-success-<%= index %>" class="alert alert-success" role="alert">
+      <button type="button" class="btn-close" aria-label="Close" onclick="document.getElementById('alert-success-<%= index %>').remove()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    <p><%= msg %></p>
+    </div>
+  <% }); %>
+<% } %>
+
+<% if (error && error.length > 0) { %>
+  <% error.forEach(function(msg, index) { %>
+    <div id="alert-error-<%= index %>" class="alert alert-danger" role="alert">
+      <button type="button" class="btn-close" aria-label="Close" onclick="document.getElementById('alert-error-<%= index %>').remove()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    <p><%= msg %></p>
+    </div>
+  <% }); %>
+<% } %>
+
+<script>
+    function showFlashMessage(type, message) {
+  const container = document.createElement('div');
+  container.className = `alert alert-${type === 'error' ? 'danger' : 'success'}`;
+  container.innerText = message;
+  container.id = `flash-${type}`;
+  document.body.prepend(container);
+
+  setTimeout(() => {
+    container.remove();
+  }, 5000); // Auto-dismiss after 5s
+}
+
+function clearFlashMessages() {
+  const existingSuccess = document.getElementById('flash-success');
+  const existingError = document.getElementById('flash-error');
+  if (existingSuccess) existingSuccess.remove();
+  if (existingError) existingError.remove();
+}
+</script>

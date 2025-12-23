@@ -1088,3 +1088,97 @@ a {
     background:transparent; 
     border:1px solid #aaa; 
 }
+
+
+.admin-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 2000;
+}
+
+.admin-modal.active {
+    display: block;
+}
+
+.admin-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.7);
+    backdrop-filter: blur(6px);
+}
+
+.admin-modal-card {
+    position: relative;
+    width: 360px;
+    max-width: 90%;
+    background: #020617;
+    color: white;
+    border-radius: 18px;
+    padding: 2rem;
+    margin: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    text-align: center;
+    animation: scaleIn 0.25s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+}
+
+.admin-modal-card h2 {
+    margin-bottom: 0.5rem;
+}
+
+.admin-modal-card p {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.admin-btn {
+    flex: 1;
+    padding: 0.7rem;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.login-btn {
+    background: #38bdf8;
+    color: #020617;
+}
+
+.signup-btn {
+    background: #22c55e;
+    color: #020617;
+}
+
+.admin-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    cursor: pointer;
+}

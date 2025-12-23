@@ -43,30 +43,31 @@
                     </a>
                 </li>
                 
-                <!-- Admin/Dashboard Conditional -->
-                <% if (user && user.isAdmin) { %>
-                    <li class="nav-item admin-item">
-                        <a href="/admin/dashboard" class="nav-link admin-link" data-page="admin">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/logout" class="nav-link logout-link">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
-                    </li>
-                <% } else { %>
-                    <li class="nav-item admin-item">
-                        <a href="/admin" class="nav-link admin-link" data-page="admin">
-                            <i class="fas fa-lock"></i>
-                            <span>ADMIN</span>
-                        </a>
-                    </li>
-                <% } %>
-            </ul>
-        </div>
+        <!-- Admin/Dashboard Conditional -->
+        <% if (user && user.isAdmin) { %>
+            <li class="nav-item admin-item">
+                <a href="/admin/dashboard"
+                class="nav-link admin-link <%= currentPage === 'admin' ? 'active' : '' %>">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/logout" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        <% } else { %>
+            <li class="nav-item admin-item">
+                <a href="#"
+                id="adminOpenBtn"
+                class="nav-link admin-link <%= currentPage === 'admin' ? 'active' : '' %>">
+                    <i class="fas fa-lock"></i>
+                    <span>ADMIN</span>
+                </a>
+            </li>
+        <% } %>
 
         <!-- Mobile Menu Toggle -->
         <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">

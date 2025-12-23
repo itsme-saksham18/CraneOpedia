@@ -30,6 +30,9 @@
     <!-- AR VIEWER script -->
     <script src="/js/arViewer.js"></script>
 
+    <!-- flash messages -->
+    <%- include('../partials/flash') %>
+
     <!-- In main.ejs, add conditional loading -->
 <% if (currentPage === 'home') { %>
     <link rel="stylesheet" href="/css/home.css">
@@ -119,6 +122,35 @@
             <div class="pulse-ring"></div>
         </button>
     <% } %>
+
+    <% if(currentPage === 'auth') { %>
+        <link rel="stylesheet" href="/css/auth.css">
+    <% } %>
+
+    <!-- Admin Auth Modal -->
+<div id="adminModal" class="admin-modal">
+    <div class="admin-modal-backdrop"></div>
+
+    <div class="admin-modal-card">
+        <button class="admin-modal-close" id="adminModalClose">✕</button>
+
+        <h2>Admin Access</h2>
+        <p>Login or create an admin account to manage CraneOpedia</p>
+
+        <div class="admin-actions">
+            <a href="/admin/login" class="admin-btn login-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </a>
+
+            <a href="/admin/signup" class="admin-btn signup-btn">
+                <i class="fas fa-user-plus"></i>
+                Sign Up
+            </a>
+        </div>
+    </div>
+</div>
+
 
     <!-- Global JavaScript -->
     <script src="/js/global.js"></script>

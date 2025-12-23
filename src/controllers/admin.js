@@ -6,7 +6,10 @@ const Inquiry = require("../models/Inquiry");
 
 
 module.exports.getSignup = (req, res) => {
-    res.send("ADMIN SIGNUP - FRONTEND LATER");
+    res.render("admin/signup", {
+        title: "Admin Signup",
+        currentPage: "auth"
+    });
 };
 
 module.exports.postSignup = async (req, res) => {
@@ -39,12 +42,15 @@ module.exports.postSignup = async (req, res) => {
 };
 
 module.exports.getLogin = (req, res) => {
-    res.send("ADMIN LOGIN - FRONTEND LATER");
+    res.render("admin/login", {
+        title: "Admin Login",
+        currentPage: "auth"
+    });
 };
 
 module.exports.postLogin = (req, res, next) => {
     passport.authenticate("local", {
-        successRedirect: "/admin",
+        successRedirect: "/admin/dashboard",
         failureRedirect: "/admin/login",
         failureFlash: true,
     })(req, res, next);

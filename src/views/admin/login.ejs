@@ -1,0 +1,16 @@
+
+<div class="auth-container">
+    <h2>Admin Login</h2>
+    <p class="auth-subtitle">Authorized personnel only</p>
+
+    <form action="/admin/login" method="POST" class="auth-form">
+        <input type="email" name="email" placeholder="Admin Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p class="auth-footer">
+        Don’t have admin access? <a href="/admin/signup">Sign up</a>
+    </p>
+</div>

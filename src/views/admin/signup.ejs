@@ -1,0 +1,17 @@
+
+<div class="auth-container">
+    <h2>Create Admin Account</h2>
+    <p class="auth-subtitle">Admin access is restricted</p>
+
+    <form action="/admin/signup" method="POST" class="auth-form">
+        <input type="text" name="name" placeholder="Full Name" required />
+        <input type="email" name="email" placeholder="Admin Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+
+        <button type="submit">Create Admin</button>
+    </form>
+
+    <p class="auth-footer">
+        Already an admin? <a href="/admin/login">Login</a>
+    </p>
+</div>

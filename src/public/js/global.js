@@ -609,3 +609,31 @@ function closeModalFn() {
 
   window.buildArPageUrl = buildArPageUrl;
 })();
+
+/* ==========================================
+   Admin login page enhancements
+========================================= */
+const adminBtn = document.getElementById("adminOpenBtn");
+const adminModal = document.getElementById("adminModal");
+const adminClose = document.getElementById("adminModalClose");
+const adminBackdrop = document.querySelector(".admin-modal-backdrop");
+
+if (adminBtn) {
+    adminBtn.addEventListener("click", e => {
+        e.preventDefault();
+        adminModal.classList.add("active");
+        document.body.style.overflow = "hidden";
+    });
+}
+
+function closeAdminModal() {
+    adminModal.classList.remove("active");
+    document.body.style.overflow = "";
+}
+
+adminClose?.addEventListener("click", closeAdminModal);
+adminBackdrop?.addEventListener("click", closeAdminModal);
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeAdminModal();
+});
