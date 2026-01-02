@@ -1,11 +1,103 @@
+:root {
+    /* Primary Colors */
+    --crane-yellow: #F9D400;
+    --crane-yellow-light: #FFE766;
+    --crane-yellow-dark: #E6C000;
+    --deep-black: #111111;
+    --soft-white: #F8F8F8;
+    --neutral-gray: #D2D2D2;
+    --gray-light: #EAEAEA;
+    --gray-dark: #888888;
+    
+    /* Glassmorphism Effects */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --backdrop-blur: blur(12px);
+    
+    /* Spacing */
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 2rem;
+    --space-lg: 3rem;
+    --space-xl: 4rem;
+    
+    /* Typography */
+    --font-heading: 'Montserrat', 'Poppins', sans-serif;
+    --font-body: 'Poppins', sans-serif;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-round: 50%;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+    --shadow-yellow: 0 4px 20px rgba(249, 212, 0, 0.3);
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Layout */
+    --navbar-height: 80px;
+    --max-width: 1400px;
+    --container-padding: 2rem;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+    --soft-white: #1A1A1A;
+    --deep-black: #F8F8F8;
+    --crane-yellow: #FFD700;
+    --crane-yellow-light: #FFE766;
+    --crane-yellow-dark: #E6C000;
+    --neutral-gray: #444444;
+    --gray-light: #2A2A2A;
+    --gray-dark: #AAAAAA;
+    
+    --glass-bg: rgba(30, 30, 30, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    --text-primary: var(--deep-black);
+    --text-secondary: var(--gray-dark);
+    --text-tertiary: #888888;
+    --background-color: var(--soft-white);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-color-light: rgba(255, 255, 255, 0.05);
+    --glass-bg-light: rgba(40, 40, 40, 0.7);
+}
+
+body {
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.6;
+    color: var(--deep-black);
+    background-color: var(--soft-white);
+    overflow-x: hidden;
+    transition: background-color var(--transition-base);
+}
+
 .auth-container {
     max-width: 380px;
     margin: 4rem auto;
-    background: #020617;
+    background: #7b5de7;
     padding: 2rem;
     border-radius: 14px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     text-align: center;
+    margin-top: 100px;
 }
 
 .auth-container h2 {
@@ -44,4 +136,12 @@
 .auth-footer {
     margin-top: 1rem;
     font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        margin: 2rem auto;
+        padding: 1.5rem;
+    }
+
 }
